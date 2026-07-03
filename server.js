@@ -40,6 +40,7 @@ const imageTypes = {
   "image/png": ".png",
   "image/webp": ".webp"
 };
+const privateStaticRoots = new Set([".git", ".vercel", "data", "node_modules", "uploads"]);
 
 function envelope(data, meta) {
   return { success: true, data, ...(meta ? { meta } : {}) };
@@ -1134,6 +1135,19 @@ ${similarHtml ? `<div class="grid gap-3"><h2 class="text-xl font-extrabold">Benz
 </body></html>`);
 }
 
+function staticPathParts(urlPathname) {
+  try {
+    return decodeURIComponent(urlPathname).split(/[\\/]+/).filter(Boolean);
+  } catch {
+    return null;
+  }
+}
+
+function isPrivateStaticPath(urlPathname) {
+  const parts = staticPathParts(urlPathname);
+  return !parts || parts.some((part) => part.startsWith(".")) || privateStaticRoots.has(parts[0]);
+}
+
 function safeStaticPath(urlPathname) {
   const decoded = decodeURIComponent(urlPathname);
   const normalized = path.normalize(decoded).replace(/^(\.\.[/\\])+/, "");
@@ -1163,6 +1177,12 @@ async function serveStatic(req, res, url) {
 
   if (url.pathname === "/kentsel-donusum" || url.pathname === "/kentsel_donusum") {
     url.pathname = "/kentsel_donusum/code.html";
+  }
+
+  if (isPrivateStaticPath(url.pathname)) {
+    res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
+    res.end("Not found");
+    return;
   }
 
   const filePath = safeStaticPath(url.pathname);
@@ -1234,7 +1254,7 @@ if (require.main === module) {
   });
 }
 
-module.exports = {
+Object.assign(requestHandler, {
   cleanEmail,
   cleanPhone,
   cleanText,
@@ -1244,4 +1264,6 @@ module.exports = {
   slugify,
   validateLead,
   verifyPassword
-};
+});
+
+module.exports = requestHandler;

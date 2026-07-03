@@ -9,6 +9,12 @@ const {
   slugify,
   validateLead
 } = require("../server");
+const serverModule = require("../server");
+
+test("exports the request handler as the Vercel serverless entrypoint", () => {
+  assert.equal(typeof serverModule, "function");
+  assert.equal(serverModule.requestHandler, serverModule);
+});
 
 test("validates email addresses", () => {
   assert.equal(cleanEmail(" INFO@EVIMIZSAHANE.COM "), "info@evimizsahane.com");
@@ -120,6 +126,14 @@ test("accepts contact leads with phone when email is omitted", async () => {
 
   assert.equal(response.statusCode, 201);
   assert.match(response.body, /Ayşe Yılmaz/);
+});
+
+test("does not serve private runtime files as static assets", async () => {
+  for (const target of ["/data/admin-users.json", "/data/submissions.json", "/.vercel/repo.json"]) {
+    const response = await dispatch("GET", target);
+    assert.equal(response.statusCode, 404);
+    assert.doesNotMatch(response.body, /passwordHash|contactRequests|projectId|orgId/);
+  }
 });
 
 function dispatch(method, target, body = null, headers = {}) {

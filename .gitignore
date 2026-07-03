@@ -6,3 +6,4 @@ uploads/
 # Runtime data with credentials or user submissions.
 data/admin-users.json
 data/submissions.json
+.vercel
