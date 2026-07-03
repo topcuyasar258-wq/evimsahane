@@ -1,0 +1,8 @@
+.DS_Store
+node_modules/
+uploads/
+*.log
+
+# Runtime data with credentials or user submissions.
+data/admin-users.json
+data/submissions.json

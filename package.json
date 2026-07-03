@@ -1,0 +1,14 @@
+{
+  "name": "evimiz-sahane-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static real-estate frontend with a small Node.js API backend.",
+  "scripts": {
+    "start": "node server.js",
+    "create-admin": "node scripts/create-admin.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

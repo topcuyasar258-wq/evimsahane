@@ -1,0 +1,42 @@
+{
+  "company": {
+    "name": "Evimiz Şahane",
+    "legalName": "Evimiz Şahane",
+    "tagline": "Geleceği, Mirasınla İnşa Et.",
+    "description": "Evimizşahane; 20 yıllık deneyimiyle kentsel dönüşüm, mimarlık ve gayrimenkul alanlarında, şehirlerin mirasını koruyarak modern yaşam alanları inşa eder.",
+    "about": "20 yıllık saha deneyimini geleceğin şehir vizyonuyla birleştirerek, kültürel dokuyu ve yaşam alışkanlıklarını yeniden şekillendiriyoruz.",
+    "sourceUrl": "https://www.evimizsahane.com"
+  },
+  "contact": {
+    "address": "Avcılar Merkez Mah. Ahmet Taner Kışlalı Cad. No: 23 İç Kapı No: 3 Avcılar/İSTANBUL",
+    "phoneDisplay": "0 (212) 984 26 33",
+    "phoneHref": "+902129842633",
+    "whatsappHref": "902129842633",
+    "email": "info@evimizsahane.com"
+  },
+  "palette": {
+    "primary": "#f4540c",
+    "primaryDark": "#e5500b",
+    "black": "#000000",
+    "white": "#ffffff",
+    "softBlue": "#ffffff",
+    "gray": "#f5f5f5",
+    "ink": "#222222"
+  },
+  "assets": {
+    "logoIcon": "https://framerusercontent.com/images/c0qnfrfDHTuxNlTFuIe3EvnW5dg.png",
+    "ogImage": "https://framerusercontent.com/images/ZmSIG7vAge3j7LTDeIQDJfRO5HQ.png"
+  },
+  "services": [
+    "Kentsel Dönüşüm",
+    "Mimarlık",
+    "Gayrimenkul",
+    "İnşaat"
+  ],
+  "values": [
+    "Sürdürülebilirlik",
+    "Güvenilir Mimari",
+    "Yaşanılabilir Alanlar"
+  ],
+  "copyright": "© 2025 Evimiz Şahane, Tüm hakları saklıdır."
+}
