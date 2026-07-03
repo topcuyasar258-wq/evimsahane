@@ -1,4 +1,5 @@
 const crypto = require("node:crypto");
+const fsSync = require("node:fs");
 const fs = require("node:fs/promises");
 const http = require("node:http");
 const path = require("node:path");
@@ -18,6 +19,11 @@ const adminSessionMs = 1000 * 60 * 60 * 8;
 const requestLog = new Map();
 const sessions = new Map();
 const sessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(32).toString("hex");
+const publicDataFiles = {
+  "brand.json": path.join(rootDir, "data", "brand.json"),
+  "properties.json": path.join(rootDir, "data", "properties.json")
+};
+const mutableDataFileNames = new Set(["admin-users.json", "submissions.json"]);
 
 const contentTypes = {
   ".html": "text/html; charset=utf-8",
@@ -41,6 +47,28 @@ const imageTypes = {
   "image/webp": ".webp"
 };
 const privateStaticRoots = new Set([".git", ".vercel", "data", "node_modules", "uploads"]);
+
+function traceVercelRuntimeFiles() {
+  return [
+    fsSync.readFileSync(path.join(rootDir, "ana_sayfa_elite_estates", "code.html")),
+    fsSync.readFileSync(path.join(rootDir, "assets", "backend-client.js")),
+    fsSync.readFileSync(path.join(rootDir, "assets", "evimiz-logo.png")),
+    fsSync.readFileSync(path.join(rootDir, "assets", "evimiz-redesign.css")),
+    fsSync.readFileSync(path.join(rootDir, "assets", "evimiz-redesign.js")),
+    fsSync.readFileSync(path.join(rootDir, "data", "brand.json")),
+    fsSync.readFileSync(path.join(rootDir, "data", "properties.json")),
+    fsSync.readFileSync(path.join(rootDir, "evimi_sat_kirala_cretsiz_de_erleme", "code.html")),
+    fsSync.readFileSync(path.join(rootDir, "hakkimizda_elite_estates", "code.html")),
+    fsSync.readFileSync(path.join(rootDir, "i_lan_detay_elite_estates", "code.html")),
+    fsSync.readFileSync(path.join(rootDir, "i_leti_im_ve_randevu_elite_estates", "code.html")),
+    fsSync.readFileSync(path.join(rootDir, "kentsel_donusum", "code.html")),
+    fsSync.readFileSync(path.join(rootDir, "portf_y_ve_i_lanlar_elite_estates", "code.html"))
+  ];
+}
+
+if (process.env.EVIMSAHANE_TRACE_RUNTIME_FILES === "1") {
+  traceVercelRuntimeFiles();
+}
 
 function envelope(data, meta) {
   return { success: true, data, ...(meta ? { meta } : {}) };
@@ -132,7 +160,7 @@ function checkRateLimit(req) {
 
 async function readJson(fileName, fallback) {
   try {
-    const raw = await fs.readFile(path.join(dataDir, fileName), "utf8");
+    const raw = await fs.readFile(dataFilePath(fileName), "utf8");
     return JSON.parse(raw);
   } catch (error) {
     if (error.code === "ENOENT" && fallback !== undefined) return fallback;
@@ -142,7 +170,16 @@ async function readJson(fileName, fallback) {
 
 async function writeJson(fileName, value) {
   await fs.mkdir(dataDir, { recursive: true });
-  await fs.writeFile(path.join(dataDir, fileName), `${JSON.stringify(value, null, 2)}\n`);
+  await fs.writeFile(dataFilePath(fileName), `${JSON.stringify(value, null, 2)}\n`);
+}
+
+function dataFilePath(fileName) {
+  if (publicDataFiles[fileName]) return publicDataFiles[fileName];
+  if (mutableDataFileNames.has(fileName)) {
+    const privateDataDir = process.env.EVIMSAHANE_PRIVATE_DATA_DIR || path.join(rootDir, ["d", "ata"].join(""));
+    return path.join(privateDataDir, fileName);
+  }
+  throw Object.assign(new Error("Bilinmeyen veri dosyası."), { statusCode: 500 });
 }
 
 async function readRawBody(req, limitBytes) {

@@ -1,0 +1,8 @@
+.DS_Store
+.git
+.vercel
+node_modules/
+uploads/
+data/admin-users.json
+data/submissions.json
+npm-debug.log*

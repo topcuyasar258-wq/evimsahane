@@ -1,4 +1,5 @@
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
 const test = require("node:test");
 
 const {
@@ -14,6 +15,20 @@ const serverModule = require("../server");
 test("exports the request handler as the Vercel serverless entrypoint", () => {
   assert.equal(typeof serverModule, "function");
   assert.equal(serverModule.requestHandler, serverModule);
+});
+
+test("keeps Vercel server bundle assets explicit and runtime data private", () => {
+  const vercelConfig = JSON.parse(fs.readFileSync("vercel.json", "utf8"));
+  const includeFiles = vercelConfig.functions["server.js"].includeFiles;
+  const vercelIgnore = fs.readFileSync(".vercelignore", "utf8");
+
+  for (const publicPath of ["assets/**", "*/code.html", "data/{brand,properties}.json"]) {
+    assert.match(includeFiles, new RegExp(publicPath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), `${publicPath} should be included in Vercel bundle`);
+  }
+
+  for (const privatePath of ["data/admin-users.json", "data/submissions.json", "uploads/"]) {
+    assert.match(vercelIgnore, new RegExp(`^${privatePath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "m"));
+  }
 });
 
 test("validates email addresses", () => {
