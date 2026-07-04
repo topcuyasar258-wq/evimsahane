@@ -3,8 +3,8 @@
     "name": "Evimiz Şahane",
     "legalName": "Evimiz Şahane",
     "tagline": "Geleceği, Mirasınla İnşa Et.",
-    "description": "Evimizşahane; 20 yıllık deneyimiyle kentsel dönüşüm, mimarlık ve gayrimenkul alanlarında, şehirlerin mirasını koruyarak modern yaşam alanları inşa eder.",
-    "about": "20 yıllık saha deneyimini geleceğin şehir vizyonuyla birleştirerek, kültürel dokuyu ve yaşam alışkanlıklarını yeniden şekillendiriyoruz.",
+    "description": "Evimiz Şahane; kentsel dönüşüm, mimari proje geliştirme, uygulama koordinasyonu ve seçilmiş gayrimenkul danışmanlığını kurumsal bir inşaat disipliniyle birleştirir.",
+    "about": "20 yıllık saha deneyimini mimari, mühendislik ve malik iletişimiyle birleştirerek güvenli, sürdürülebilir ve yaşanabilir yapılar geliştiriyoruz.",
     "sourceUrl": "https://www.evimizsahane.com"
   },
   "contact": {
@@ -19,12 +19,13 @@
     "primaryDark": "#e5500b",
     "black": "#000000",
     "white": "#ffffff",
-    "softBlue": "#ffffff",
-    "gray": "#f5f5f5",
-    "ink": "#222222"
+    "softBlue": "#ebf4ff",
+    "gray": "#ededed",
+    "ink": "#151515"
   },
   "assets": {
-    "logoIcon": "https://framerusercontent.com/images/c0qnfrfDHTuxNlTFuIe3EvnW5dg.png",
+    "logoIcon": "/assets/evimiz-logo.png",
+    "logoWordmark": "/assets/logo-evimiz-sahane.svg",
     "ogImage": "https://framerusercontent.com/images/ZmSIG7vAge3j7LTDeIQDJfRO5HQ.png"
   },
   "services": [

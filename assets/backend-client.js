@@ -137,12 +137,27 @@
   function inputsByForm(form) {
     const controls = Array.from(form.querySelectorAll("input,select,textarea"));
     return controls.reduce((payload, control) => {
-      const placeholder = text(control.getAttribute("placeholder")).toLocaleLowerCase("tr-TR");
-      const label = text(control.closest(".space-y-1,.space-y-xs")?.querySelector("label")?.textContent).toLocaleLowerCase("tr-TR");
-      const key = `${label} ${placeholder}`;
+      const name = control.getAttribute("name");
       const value = text(control.value);
-
       if (!value) return payload;
+      if (name && [
+        "name",
+        "phone",
+        "email",
+        "topic",
+        "message",
+        "propertyAddress",
+        "location",
+        "propertyType",
+        "preferredDate",
+        "preferredTime"
+      ].includes(name)) {
+        return { ...payload, [name]: value };
+      }
+
+      const placeholder = text(control.getAttribute("placeholder")).toLocaleLowerCase("tr-TR");
+      const label = text(control.closest(".space-y-1,.space-y-xs,.field")?.querySelector("label")?.textContent).toLocaleLowerCase("tr-TR");
+      const key = `${label} ${placeholder}`;
       if (key.includes("ad")) return { ...payload, name: value };
       if (key.includes("telefon")) return { ...payload, phone: value };
       if (key.includes("mail") || key.includes("e-posta")) return { ...payload, email: value };

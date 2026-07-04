@@ -1,8 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "index": {
-      "includeFiles": "{*/*.html,assets/**/*}"
+    "server.js": {
+      "includeFiles": "{*/code.html,assets/**/*,data/{brand,properties}.json}"
     }
   }
 }

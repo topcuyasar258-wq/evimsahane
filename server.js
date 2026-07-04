@@ -55,6 +55,7 @@ function traceVercelRuntimeFiles() {
     fsSync.readFileSync(path.join(rootDir, "assets", "evimiz-logo.png")),
     fsSync.readFileSync(path.join(rootDir, "assets", "evimiz-redesign.css")),
     fsSync.readFileSync(path.join(rootDir, "assets", "evimiz-redesign.js")),
+    fsSync.readFileSync(path.join(rootDir, "assets", "evimiz-tailwind.css")),
     fsSync.readFileSync(path.join(rootDir, "data", "brand.json")),
     fsSync.readFileSync(path.join(rootDir, "data", "properties.json")),
     fsSync.readFileSync(path.join(rootDir, "evimi_sat_kirala_cretsiz_de_erleme", "code.html")),
@@ -114,7 +115,7 @@ function sendHtml(res, statusCode, body, extraHeaders = {}) {
     "referrer-policy": "strict-origin-when-cross-origin",
     "content-security-policy": [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com",
+      "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: https:",
@@ -278,6 +279,16 @@ function displayType(value) {
     rented: "Kiralandı"
   };
   return labels[value] || value || "-";
+}
+
+function isProjectPortfolioItem(property) {
+  const coverImage = String(property.coverImage || "");
+  return Boolean(property.featured) && coverImage.startsWith("/assets/projects/");
+}
+
+function isPublicListing(property) {
+  const coverImage = String(property.coverImage || "");
+  return property.status === "active" && coverImage.startsWith("/uploads/properties/");
 }
 
 function priceText(property) {
@@ -718,6 +729,7 @@ async function renderRobots(req, res) {
 async function renderSitemap(req, res) {
   const staticUrls = [
     "/evimiz-sahane",
+    "/projelerimiz",
     "/ilanlar",
     "/evimi_sat_kirala_cretsiz_de_erleme",
     "/kentsel-donusum",
@@ -725,7 +737,7 @@ async function renderSitemap(req, res) {
     "/i_leti_im_ve_randevu_elite_estates"
   ];
   const properties = (await readProperties())
-    .filter((property) => property.status === "active")
+    .filter(isPublicListing)
     .map((property) => `/ilan/${property.slug}`);
   const urls = [...staticUrls, ...properties];
   const now = new Date().toISOString().slice(0, 10);
@@ -748,15 +760,16 @@ function baseHead(title, description = "Evimiz Şahane güncel emlak ilanları",
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(title)}</title>
 <meta name="description" content="${escapeHtml(description)}">
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/evimiz-redesign.css?v=20260703-5">
-<script src="/assets/evimiz-redesign.js?v=20260703-5" defer></script>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@200..700,0..1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/evimiz-tailwind.css?v=20260704-4">
+<link rel="stylesheet" href="/assets/evimiz-redesign.css?v=20260704-4">
+<script src="/assets/backend-client.js?v=20260704-4" defer></script>
+<script src="/assets/evimiz-redesign.js?v=20260704-4" defer></script>
 <style>
-body{font-family:Inter,sans-serif;background:#fafafa;color:#232323}
+body{font-family:"Instrument Sans",Inter,sans-serif;background:#fff;color:#151515}
 .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;line-height:1}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;border-radius:.5rem;padding:.78rem 1rem;font-weight:700;transition:.15s ease}
 .btn:active{transform:scale(.98)}
@@ -777,19 +790,29 @@ ${extraHead}
 }
 
 function siteHeader(active = "ilanlar") {
-  return `<header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[#c6c6cd] bg-white px-4 shadow-sm">
-<a href="/evimiz-sahane" class="flex items-center gap-3 text-black">
-<span class="flex h-11 w-11 items-center justify-center border border-[#c6c6cd] bg-white text-3xl font-bold">e</span>
-<span class="text-xl font-extrabold">Evimiz Şahane</span>
-</a>
-<nav class="hidden items-center gap-6 md:flex">
-<a class="${active === "ilanlar" ? "text-[#f4540c] font-bold" : "text-[#5f6268]"}" href="/ilanlar">Portfolyomuz</a>
-<a class="text-[#45464d]" href="/evimi_sat_kirala_cretsiz_de_erleme">Evimi Sat</a>
-<a class="text-[#45464d]" href="/kentsel_donusum">Kentsel Dönüşüm</a>
-<a class="text-[#45464d]" href="/hakkimizda_elite_estates">Hakkımızda</a>
-<a class="text-[#45464d]" href="/i_leti_im_ve_randevu_elite_estates">İletişim</a>
+  const current = (key) => active === key ? ' aria-current="page"' : "";
+  return `<div class="site-drawer-overlay" data-site-drawer-overlay></div>
+<aside class="site-drawer" data-site-drawer aria-label="Mobil menü">
+<div class="site-drawer__top"><a class="brand-lockup" href="/evimiz-sahane"><img src="/assets/logo-evimiz-sahane.svg" alt="Evimiz Şahane"></a><button class="icon-button material-symbols-outlined" type="button" data-site-menu-close aria-label="Menüyü kapat">close</button></div>
+<nav>
+<a href="/hakkimizda_elite_estates" data-nav-link><span class="material-symbols-outlined">domain</span>Kurumsal</a>
+<a href="/kentsel_donusum" data-nav-link><span class="material-symbols-outlined">apartment</span>Kentsel Dönüşüm</a>
+<a href="/projelerimiz" data-nav-link><span class="material-symbols-outlined">view_in_ar</span>Projelerimiz</a>
+<a href="/ilanlar" data-nav-link><span class="material-symbols-outlined">real_estate_agent</span>İlanlar</a>
+<a href="/i_leti_im_ve_randevu_elite_estates" data-nav-link><span class="material-symbols-outlined">mail</span>İletişim</a>
 </nav>
-<a class="btn btn-accent hidden md:inline-flex" href="tel:+902129842633">Ara</a>
+<div class="site-drawer__actions"><a class="button button--orange" href="tel:+902129842633">Ara</a><a class="button button--whatsapp" href="https://wa.me/902129842633">WhatsApp</a></div>
+</aside>
+<header class="site-header">
+<a class="brand-lockup" href="/evimiz-sahane" aria-label="Evimiz Şahane ana sayfa"><img src="/assets/logo-evimiz-sahane.svg" alt="Evimiz Şahane"></a>
+<nav class="site-nav" aria-label="Ana menü">
+<a href="/hakkimizda_elite_estates" data-nav-link${current("kurumsal")}>Kurumsal</a>
+<a href="/kentsel_donusum" data-nav-link${current("kentsel")}>Kentsel Dönüşüm</a>
+<a href="/projelerimiz" data-nav-link${current("projeler")}>Projelerimiz</a>
+<a href="/ilanlar" data-nav-link${current("ilanlar")}>İlanlar</a>
+<a href="/i_leti_im_ve_randevu_elite_estates" data-nav-link${current("iletisim")}>İletişim</a>
+</nav>
+<div class="site-actions"><a class="button" href="/i_leti_im_ve_randevu_elite_estates">Proje Görüşmesi Al <span class="material-symbols-outlined">arrow_forward</span></a><button class="icon-button mobile-menu-button material-symbols-outlined" type="button" data-site-menu-open aria-label="Menüyü aç">menu</button></div>
 </header>`;
 }
 
@@ -1071,7 +1094,7 @@ function filterPublicProperties(properties, url) {
   const minPrice = Number(cleanText(url.searchParams.get("minPrice") || "").replace(/\D/g, ""));
   const maxPrice = Number(cleanText(url.searchParams.get("maxPrice") || "").replace(/\D/g, ""));
   return properties.filter((property) => {
-    const statusOk = property.status === "active";
+    const statusOk = isPublicListing(property);
     const listingOk = !listingType || property.listingType === listingType;
     const typeOk = !propertyType || slugify(property.propertyType) === propertyType || property.propertyType === propertyType;
     const districtOk = !district || property.district.toLocaleLowerCase("tr-TR").includes(district);
@@ -1083,27 +1106,103 @@ function filterPublicProperties(properties, url) {
   });
 }
 
-async function renderPublicList(req, res, url) {
-  const properties = filterPublicProperties(await readProperties(), url).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
-  const districts = [...new Set((await readProperties()).map((property) => property.district).filter(Boolean))].sort();
-  const cards = properties.map((property) => {
-    const message = encodeURIComponent(`Merhaba, sitenizdeki ${property.title} ilanı hakkında bilgi almak istiyorum.`);
-    return `<article class="card group overflow-hidden">
-<a href="/ilan/${encodeURIComponent(property.slug)}" class="block">
-<div class="relative aspect-[4/3] overflow-hidden bg-[#fff0e8]"><img src="${escapeHtml(property.coverImage)}" alt="${escapeHtml(property.title)}" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
-<span class="badge absolute right-3 top-3 bg-white/95 text-black">${displayType(property.listingType)}</span>
-<span class="badge absolute left-3 top-3 bg-[#f4540c] text-white">${escapeHtml(displayType(property.propertyType))}</span></div>
-<div class="grid gap-3 p-4">
-<h2 class="text-lg font-extrabold text-black">${escapeHtml(property.title)}</h2>
-<p class="text-2xl font-extrabold text-[#f4540c]">${escapeHtml(priceText(property))}</p>
-<p class="flex items-center gap-1 text-sm text-[#45464d]"><span class="material-symbols-outlined text-base">location_on</span>${escapeHtml([property.neighborhood, property.district].filter(Boolean).join(" / "))}</p>
-<div class="grid grid-cols-3 border-y border-[#e2e8f0] py-3 text-center text-sm"><span>${escapeHtml(property.grossM2 || "-")} m²</span><span class="border-x border-[#e2e8f0]">${escapeHtml(property.roomCount || "-")}</span><span>${escapeHtml(displayType(property.propertyType))}</span></div>
-</div></a>
-<div class="grid grid-cols-[1fr_auto] gap-2 px-4 pb-4"><a class="btn btn-primary" href="/ilan/${encodeURIComponent(property.slug)}">Detayları Gör</a><a class="btn btn-wa px-3" aria-label="WhatsApp'tan bilgi al" href="https://wa.me/902129842633?text=${message}"><span class="material-symbols-outlined">chat</span></a></div>
+async function renderProjectsPortfolio(req, res) {
+  const projects = (await readProperties())
+    .filter(isProjectPortfolioItem)
+    .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+  const projectStats = [
+    ["3", "seçilmiş proje"],
+    ["28.000 m²", "tasarım ve uygulama ölçeği"],
+    ["6 aşama", "kontrollü teslim süreci"]
+  ];
+  const cards = projects.map((project, index) => {
+    const statusLabels = ["Tamamlandı", "Devam Ediyor", "Planlama Aşamasında"];
+    const scopes = [
+      "Kentsel dönüşüm odaklı modern konut yaklaşımı, güçlü cephe dili ve aile yaşamına uygun plan kurgusu.",
+      "Premium malzeme dili, kontrollü mahremiyet, peyzaj ve geniş cam yüzeylerle villa yaşamı.",
+      "Bahçe kullanımı, sakin yerleşim dokusu ve çevre kalitesiyle uzun vadeli yaşam değeri."
+    ];
+    const images = project.images.slice(0, 3);
+    return `<article class="portfolio-case">
+<div class="portfolio-case__media">
+<img src="${escapeHtml(project.coverImage)}" alt="${escapeHtml(project.title)}">
+${images.length > 1 ? `<div class="portfolio-case__thumbs">${images.slice(1).map((image) => `<img src="${escapeHtml(image.url)}" alt="${escapeHtml(image.alt || project.title)}">`).join("")}</div>` : ""}
+</div>
+<div class="portfolio-case__body">
+<span class="portfolio-index">${String(index + 1).padStart(2, "0")}</span>
+<h2>${escapeHtml(project.title)}</h2>
+<p>${escapeHtml(scopes[index] || project.description)}</p>
+<dl>
+<div><dt>Lokasyon</dt><dd>${escapeHtml([project.district, project.city].filter(Boolean).join(" / "))}</dd></div>
+<div><dt>Kapsam</dt><dd>${escapeHtml(displayType(project.propertyType))} geliştirme</dd></div>
+<div><dt>Durum</dt><dd>${escapeHtml(statusLabels[index] || "Portföy")}</dd></div>
+</dl>
+</div>
 </article>`;
   }).join("");
-  const title = "Evimiz Şahane - Güncel Satılık ve Kiralık Portföyler";
-  const description = "Evimiz Şahane aktif satılık ve kiralık portföylerini konum, fiyat ve oda kriterlerine göre inceleyin.";
+  const title = "Projelerimiz | Evimiz Şahane";
+  const description = "Evimiz Şahane proje portföyü: kentsel dönüşüm, konut, villa ve yaşam alanı geliştirme çalışmalarımız.";
+  const canonical = absoluteUrl(req, "/projelerimiz");
+  const seoHead = `<link rel="canonical" href="${escapeHtml(canonical)}">
+<meta property="og:title" content="${escapeHtml(title)}">
+<meta property="og:description" content="${escapeHtml(description)}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="${escapeHtml(canonical)}">
+<meta property="og:image" content="${escapeHtml(projects[0]?.coverImage || "/assets/projects/avcilar-residence-01.jpeg")}">`;
+  sendHtml(res, 200, `${baseHead(title, description, seoHead)}
+<body class="brand-site">${siteHeader("projeler")}
+<main>
+<section class="portfolio-hero">
+<div class="shell portfolio-hero__grid">
+<div>
+<p class="page-kicker">Projelerimiz</p>
+<h1>Yalnızca portföy değil, teslim disiplini.</h1>
+<p>Evimiz Şahane projeleri; doğru fizibilite, mimari karakter, mühendislik koordinasyonu ve malik güveniyle büyüyen işlerdir. Burada odağımız metrekare satışı değil, yaptığımız işin ölçeği ve kalitesidir.</p>
+<div class="portfolio-stats">${projectStats.map(([value, label]) => `<div><strong>${escapeHtml(value)}</strong><span>${escapeHtml(label)}</span></div>`).join("")}</div>
+</div>
+<figure><img src="${escapeHtml(projects[0]?.coverImage || "/assets/projects/avcilar-residence-01.jpeg")}" alt="Evimiz Şahane proje portföyü"></figure>
+</div>
+</section>
+<section class="section">
+<div class="shell portfolio-cases">${cards || `<div class="info-card">Henüz yayınlanmış proje bulunamadı.</div>`}</div>
+</section>
+<section class="section section--black">
+<div class="shell dark-panel">
+<div><h2>İnşaat ve kentsel dönüşüm ana odağımızdır.</h2><p>Projelerimiz sayfası satış ilanı gibi değil, tamamladığımız ve geliştirdiğimiz işlerin kurumsal portföyü olarak kurgulanmıştır.</p></div>
+<ul class="subtle-list">
+<li><span class="material-symbols-outlined">check_circle</span>Fizibilite, mimari proje, ruhsat ve uygulama koordinasyonu tek akışta yönetilir.</li>
+<li><span class="material-symbols-outlined">check_circle</span>Her proje; teknik doküman, malzeme kararı ve teslim takvimiyle izlenir.</li>
+<li><span class="material-symbols-outlined">check_circle</span>Admin ilanları ayrı sayfada tutulur; proje portföyü kurumsal vitrin olarak kalır.</li>
+</ul>
+</div>
+</section>
+<section class="contact-band">
+<div class="contact-band__sketch" aria-hidden="true"></div>
+<div class="contact-band__copy"><h2>Sıradaki projeyi birlikte planlayalım.</h2><p>Arsanız, binanız veya dönüşüm fikriniz için teknik ve ticari yol haritasını birlikte çıkaralım.</p><a class="button button--light" href="/i_leti_im_ve_randevu_elite_estates">Proje Görüşmesi Al</a></div>
+<div class="contact-band__details"><div class="contact-line"><span class="material-symbols-outlined">phone</span><div><strong>Telefon</strong><a href="tel:+902129842633">0 (212) 984 26 33</a></div></div><div class="contact-line"><span class="material-symbols-outlined">location_on</span><div><strong>Merkez</strong><span>Avcılar / İstanbul</span></div></div></div>
+</section>
+</main></body></html>`);
+}
+
+async function renderPublicList(req, res, url) {
+  const properties = filterPublicProperties(await readProperties(), url).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+  const districts = [...new Set((await readProperties()).filter(isPublicListing).map((property) => property.district).filter(Boolean))].sort();
+  const cards = properties.map((property) => {
+    const message = encodeURIComponent(`Merhaba, sitenizdeki ${property.title} ilanı hakkında bilgi almak istiyorum.`);
+    return `<article class="listing-card">
+<a href="/ilan/${encodeURIComponent(property.slug)}" class="block">
+<div class="relative"><img src="${escapeHtml(property.coverImage)}" alt="${escapeHtml(property.title)}"><span class="badge badge--orange absolute left-3 top-3">${escapeHtml(displayType(property.propertyType))}</span><span class="badge absolute right-3 top-3">${displayType(property.listingType)}</span></div>
+<div class="listing-card__body">
+<h2>${escapeHtml(property.title)}</h2>
+<span class="price">${escapeHtml(priceText(property))}</span>
+<p class="flex items-center gap-1 text-sm text-[#55585d]"><span class="material-symbols-outlined text-base">location_on</span>${escapeHtml([property.neighborhood, property.district, property.city].filter(Boolean).join(" / "))}</p>
+<div class="spec-grid"><span>${escapeHtml(property.grossM2 || "-")} m²</span><span>${escapeHtml(property.roomCount || "-")}</span><span>${escapeHtml(displayType(property.propertyType))}</span></div>
+</div></a>
+<div class="grid grid-cols-[1fr_auto] gap-2 px-4 pb-4"><a class="button" href="/ilan/${encodeURIComponent(property.slug)}">Detayları Gör</a><a class="button button--whatsapp px-3" aria-label="WhatsApp'tan bilgi al" href="https://wa.me/902129842633?text=${message}"><span class="material-symbols-outlined">chat</span></a></div>
+</article>`;
+  }).join("");
+  const title = "İlanlar | Evimiz Şahane";
+  const description = "Evimiz Şahane admin panelinden yayınlanan güncel satılık ve kiralık gayrimenkul ilanları.";
   const canonical = absoluteUrl(req, "/ilanlar");
   const seoHead = `<link rel="canonical" href="${escapeHtml(canonical)}">
 <meta property="og:title" content="${escapeHtml(title)}">
@@ -1111,27 +1210,33 @@ async function renderPublicList(req, res, url) {
 <meta property="og:type" content="website">
 <meta property="og:url" content="${escapeHtml(canonical)}">`;
   sendHtml(res, 200, `${baseHead(title, description, seoHead)}
-<body class="pb-8">${siteHeader("ilanlar")}
-<main class="mx-auto max-w-7xl px-4 py-6">
-<section class="mb-6">
-<h1 class="mb-2 text-3xl font-extrabold md:text-4xl">Güncel Satılık ve Kiralık Portföyler</h1>
-<p class="max-w-2xl text-[#45464d]">Evimiz Şahane özel seçkisiyle aktif portföyleri inceleyin ve tek dokunuşla iletişime geçin.</p>
+<body class="brand-site listing-shell">${siteHeader("ilanlar")}
+<main>
+<section class="listing-hero">
+<div class="shell">
+<p class="page-kicker">İlanlar</p>
+<h1>Yayına alınan güncel ilanlar.</h1>
+<p>Bu sayfa admin panelinden eklenen satılık ve kiralık ilanların ayrı vitrini olarak çalışır. Kurumsal proje portföyümüz için Projelerimiz sayfasını inceleyebilirsiniz.</p>
+<div class="listing-hero__actions"><a class="button button--light" href="/projelerimiz">Projelerimizi İncele</a><a class="button button--orange" href="/i_leti_im_ve_randevu_elite_estates">İletişime Geç</a></div>
+</div>
 </section>
-<form class="card mb-6 grid gap-3 p-4 md:grid-cols-6" method="get">
-<div class="field"><label>Satılık / Kiralık</label><select name="listingType"><option value="">Tümü</option>${["satilik", "kiralik"].map((item) => `<option value="${item}" ${url.searchParams.get("listingType") === item ? "selected" : ""}>${displayType(item)}</option>`).join("")}</select></div>
-<div class="field"><label>Tür</label><select name="propertyType"><option value="">Tümü</option>${["daire", "villa", "arsa", "isyeri", "dubleks", "residence", "mustakil_ev"].map((item) => `<option value="${item}" ${url.searchParams.get("propertyType") === item ? "selected" : ""}>${displayType(item)}</option>`).join("")}</select></div>
-<div class="field"><label>İlçe</label><select name="district"><option value="">Tümü</option>${districts.map((item) => `<option value="${escapeHtml(item)}" ${url.searchParams.get("district") === item ? "selected" : ""}>${escapeHtml(item)}</option>`).join("")}</select></div>
-<div class="field"><label>Oda</label><input name="roomCount" value="${escapeHtml(url.searchParams.get("roomCount") || "")}" placeholder="3+1"></div>
-<div class="field"><label>Min fiyat</label><input name="minPrice" inputmode="numeric" value="${escapeHtml(url.searchParams.get("minPrice") || "")}"></div>
-<button class="btn btn-accent self-end" type="submit">Filtrele</button>
+<section class="shell">
+<form class="filter-bar" method="get">
+<div class="field"><label for="listing-type-filter">Satılık / Kiralık</label><select id="listing-type-filter" name="listingType"><option value="">Tümü</option>${["satilik", "kiralik"].map((item) => `<option value="${item}" ${url.searchParams.get("listingType") === item ? "selected" : ""}>${displayType(item)}</option>`).join("")}</select></div>
+<div class="field"><label for="property-type-filter">Tür</label><select id="property-type-filter" name="propertyType"><option value="">Tümü</option>${["daire", "villa", "arsa", "isyeri", "dubleks", "residence", "mustakil_ev"].map((item) => `<option value="${item}" ${url.searchParams.get("propertyType") === item ? "selected" : ""}>${displayType(item)}</option>`).join("")}</select></div>
+<div class="field"><label for="district-filter">İlçe</label><select id="district-filter" name="district"><option value="">Tümü</option>${districts.map((item) => `<option value="${escapeHtml(item)}" ${url.searchParams.get("district") === item ? "selected" : ""}>${escapeHtml(item)}</option>`).join("")}</select></div>
+<div class="field"><label for="room-filter">Oda</label><input id="room-filter" name="roomCount" value="${escapeHtml(url.searchParams.get("roomCount") || "")}" placeholder="3+1"></div>
+<div class="field"><label for="min-price-filter">Min fiyat</label><input id="min-price-filter" name="minPrice" inputmode="numeric" value="${escapeHtml(url.searchParams.get("minPrice") || "")}"></div>
+<button class="button button--orange" type="submit">Filtrele</button>
 </form>
-<div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">${cards || `<div class="card p-6 text-center text-[#45464d] md:col-span-2 lg:col-span-3">Aktif ilan bulunamadı.</div>`}</div>
+<div class="listing-grid">${cards || `<div class="info-card">Henüz aktif ilan bulunamadı. Yeni ilanlar admin panelinden yayına alındığında burada listelenir.</div>`}</div>
+</section>
 </main></body></html>`);
 }
 
 async function renderPropertyDetail(req, res, slug) {
   const properties = await readProperties();
-  const property = properties.find((item) => item.slug === slug && item.status === "active");
+  const property = properties.find((item) => item.slug === slug && isPublicListing(item));
   if (!property) {
     sendHtml(res, 404, `${baseHead("İlan bulunamadı")}<body>${siteHeader("ilanlar")}<main class="mx-auto max-w-3xl p-6">İlan bulunamadı.</main></body></html>`);
     return;
@@ -1141,32 +1246,30 @@ async function renderPropertyDetail(req, res, slug) {
   const whatsappHref = brand.contact?.whatsappHref || "902129842633";
   const message = encodeURIComponent(`Merhaba, sitenizdeki ${property.title} ilanı hakkında bilgi almak istiyorum.`);
   const canonical = absoluteUrl(req, `/ilan/${property.slug}`);
-  const gallery = property.images.map((image) => `<img src="${escapeHtml(image.url)}" alt="${escapeHtml(image.alt || property.title)}" class="h-28 w-full rounded-lg object-cover md:h-36">`).join("");
-  const similar = properties.filter((item) => item.id !== property.id && item.status === "active" && (item.propertyType === property.propertyType || item.district === property.district)).slice(0, 3);
-  const similarHtml = similar.map((item) => `<a class="card grid grid-cols-[96px_1fr] gap-3 p-2" href="/ilan/${encodeURIComponent(item.slug)}"><img src="${escapeHtml(item.coverImage)}" alt="" class="h-24 w-24 rounded object-cover"><span><strong class="block">${escapeHtml(item.title)}</strong><span class="text-sm text-[#45464d]">${escapeHtml(priceText(item))}</span></span></a>`).join("");
+  const gallery = property.images.map((image) => `<img src="${escapeHtml(image.url)}" alt="${escapeHtml(image.alt || property.title)}">`).join("");
+  const similar = properties.filter((item) => item.id !== property.id && isPublicListing(item) && (item.propertyType === property.propertyType || item.district === property.district)).slice(0, 3);
+  const similarHtml = similar.map((item) => `<a class="info-card" href="/ilan/${encodeURIComponent(item.slug)}" style="display:grid;grid-template-columns:96px 1fr;gap:14px;text-decoration:none"><img src="${escapeHtml(item.coverImage)}" alt="" style="width:96px;height:96px;object-fit:cover"><span><strong style="display:block;color:#000">${escapeHtml(item.title)}</strong><span style="color:#55585d">${escapeHtml(priceText(item))}</span></span></a>`).join("");
   const seoHead = `<link rel="canonical" href="${escapeHtml(canonical)}">
 <meta property="og:title" content="${escapeHtml(property.seoTitle || property.title)}">
 <meta property="og:description" content="${escapeHtml(property.seoDescription)}">
 <meta property="og:image" content="${escapeHtml(property.coverImage)}">`;
   sendHtml(res, 200, `${baseHead(property.seoTitle || property.title, property.seoDescription, seoHead)}
-<body class="pb-24 md:pb-8">${siteHeader("ilanlar")}
-<main class="mx-auto max-w-7xl px-4 py-6">
-<div class="grid gap-6 lg:grid-cols-[1.4fr_.8fr]">
-<section class="grid gap-4">
-<img src="${escapeHtml(property.coverImage)}" alt="${escapeHtml(property.title)}" class="aspect-[16/10] w-full rounded-xl object-cover">
-<div class="grid grid-cols-3 gap-2 md:grid-cols-5">${gallery}</div>
-<article class="card grid gap-4 p-5"><div><span class="badge bg-[#fff0e8] text-[#9f2d00]">${displayType(property.listingType)}</span><h1 class="mt-3 text-3xl font-extrabold">${escapeHtml(property.title)}</h1><p class="mt-2 text-3xl font-extrabold text-[#f4540c]">${escapeHtml(priceText(property))}</p><p class="mt-2 text-[#45464d]">${escapeHtml([property.neighborhood, property.district, property.city].filter(Boolean).join(" / "))}</p></div>
-<div class="grid grid-cols-2 gap-3 md:grid-cols-4">${[
+<body class="brand-site">${siteHeader("ilanlar")}
+<main class="shell detail-layout">
+<section>
+<img src="${escapeHtml(property.coverImage)}" alt="${escapeHtml(property.title)}" class="detail-main-image">
+<div class="detail-gallery">${gallery}</div>
+<article class="detail-panel"><div><span class="badge badge--orange">${displayType(property.listingType)}</span><h1>${escapeHtml(property.title)}</h1><p class="price">${escapeHtml(priceText(property))}</p><p>${escapeHtml([property.neighborhood, property.district, property.city].filter(Boolean).join(" / "))}</p></div>
+<div class="detail-feature-grid">${[
   ["m²", property.grossM2], ["Oda", property.roomCount], ["Banyo", property.bathroomCount], ["Kat", property.floor],
   ["Isıtma", property.heating], ["Balkon", property.hasBalcony ? "Var" : "Yok"], ["Eşyalı", property.isFurnished ? "Evet" : "Hayır"], ["Kredi", property.creditEligible ? "Uygun" : "Belirtilmedi"]
-].map(([label, value]) => `<div class="rounded-lg bg-[#fff0e8] p-3"><span class="block text-xs font-bold text-[#45464d]">${label}</span><strong>${escapeHtml(value || "-")}</strong></div>`).join("")}</div>
+].map(([label, value]) => `<div class="detail-feature"><span>${label}</span><strong>${escapeHtml(value || "-")}</strong></div>`).join("")}</div>
 <div class="prose max-w-none leading-7">${textToParagraphs(property.description)}</div></article>
 </section>
-<aside class="grid content-start gap-4">
-<div class="card grid gap-3 p-5"><h2 class="text-xl font-extrabold">Bu ilanla ilgileniyorum</h2><a class="btn btn-wa" href="https://wa.me/${escapeHtml(whatsappHref)}?text=${message}"><span class="material-symbols-outlined">chat</span>WhatsApp'tan Bilgi Al</a><a class="btn btn-primary" href="tel:${escapeHtml(phoneHref)}"><span class="material-symbols-outlined">phone</span>Telefonla Ara</a></div>
-${similarHtml ? `<div class="grid gap-3"><h2 class="text-xl font-extrabold">Benzer İlanlar</h2>${similarHtml}</div>` : ""}
+<aside class="detail-sidebar">
+<div class="info-card"><span class="material-symbols-outlined">forum</span><h2>Bu portföyle ilgileniyorum</h2><p>Detaylı bilgi ve proje görüşmesi için ekibimizle iletişime geçin.</p><div style="display:grid;gap:10px;margin-top:18px"><a class="button button--whatsapp" href="https://wa.me/${escapeHtml(whatsappHref)}?text=${message}"><span class="material-symbols-outlined">chat</span>WhatsApp'tan Bilgi Al</a><a class="button" href="tel:${escapeHtml(phoneHref)}"><span class="material-symbols-outlined">phone</span>Telefonla Ara</a></div></div>
+${similarHtml ? `<div class="grid gap-3"><h2 style="font-size:22px;font-weight:820;color:#000">Benzer Portföyler</h2>${similarHtml}</div>` : ""}
 </aside>
-</div>
 </main>
 <div class="mobile-sticky-cta grid grid-cols-2 gap-2 md:hidden"><a class="btn btn-wa" href="https://wa.me/${escapeHtml(whatsappHref)}?text=${message}">WhatsApp</a><a class="btn btn-primary" href="tel:${escapeHtml(phoneHref)}">Ara</a></div>
 </body></html>`);
@@ -1182,7 +1285,9 @@ function staticPathParts(urlPathname) {
 
 function isPrivateStaticPath(urlPathname) {
   const parts = staticPathParts(urlPathname);
-  return !parts || parts.some((part) => part.startsWith(".")) || privateStaticRoots.has(parts[0]);
+  if (!parts || parts.some((part) => part.startsWith("."))) return true;
+  if (parts[0] === "uploads" && parts[1] === "properties") return false;
+  return privateStaticRoots.has(parts[0]);
 }
 
 function safeStaticPath(urlPathname) {
@@ -1203,7 +1308,7 @@ async function serveStatic(req, res, url) {
   }
 
   if (url.pathname === "/portf_y_ve_i_lanlar_elite_estates") {
-    sendRedirect(res, "/ilanlar");
+    sendRedirect(res, "/projelerimiz");
     return;
   }
 
@@ -1233,10 +1338,15 @@ async function serveStatic(req, res, url) {
     const stat = await fs.stat(filePath);
     const resolved = stat.isDirectory() ? path.join(filePath, "code.html") : filePath;
     const ext = path.extname(resolved).toLowerCase();
+    if (url.pathname.startsWith("/uploads/properties/") && ![".jpg", ".jpeg", ".png", ".webp"].includes(ext)) {
+      res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
+      res.end("Not found");
+      return;
+    }
     const body = await fs.readFile(resolved);
     res.writeHead(200, {
       "content-type": contentTypes[ext] || "application/octet-stream",
-      "cache-control": ext === ".html" ? "no-store" : "public, max-age=3600",
+      "cache-control": ext === ".html" ? "no-store" : "public, max-age=31536000, immutable",
       "x-content-type-options": "nosniff"
     });
     res.end(body);
@@ -1268,6 +1378,10 @@ async function requestHandler(req, res) {
     }
     if (req.method === "GET" && url.pathname === "/ilanlar") {
       await renderPublicList(req, res, url);
+      return;
+    }
+    if (req.method === "GET" && (url.pathname === "/projelerimiz" || url.pathname === "/projeler")) {
+      await renderProjectsPortfolio(req, res);
       return;
     }
     const detailMatch = url.pathname.match(/^\/ilan\/([^/]+)$/);

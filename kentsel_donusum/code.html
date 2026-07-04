@@ -2,91 +2,125 @@
 <html lang="tr">
 <head>
   <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Kentsel Dönüşüm | Evimiz Şahane</title>
-  <meta name="description" content="Evimiz Şahane ile kentsel dönüşüm süreciniz için risk analizi, proje planlama, malik iletişimi ve güvenilir danışmanlık desteği alın."/>
+  <meta name="description" content="Evimiz Şahane ile kentsel dönüşüm sürecinde risk analizi, fizibilite, malik uzlaşması, ruhsat, uygulama ve teslim aşamalarını kurumsal disiplinle yönetin."/>
   <link rel="canonical" href="https://www.evimizsahane.com/kentsel-donusum"/>
-  <meta property="og:title" content="Kentsel Dönüşüm | Evimiz Şahane"/>
-  <meta property="og:description" content="Risk analizi, proje planlama, malik iletişimi ve güvenilir danışmanlık ile kentsel dönüşüm sürecinizi yönetin."/>
-  <meta property="og:type" content="website"/>
-  <meta property="og:url" content="https://www.evimizsahane.com/kentsel-donusum"/>
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="/assets/evimiz-redesign.css?v=20260703-5"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@200..700,0..1&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/evimiz-tailwind.css?v=20260704-4"/>
+  <link rel="stylesheet" href="/assets/evimiz-redesign.css?v=20260704-4"/>
 </head>
-<body class="urban-page">
+<body class="brand-site">
+  <div class="site-drawer-overlay" data-site-drawer-overlay></div>
+  <aside class="site-drawer" data-site-drawer aria-label="Mobil menü">
+    <div class="site-drawer__top">
+      <a class="brand-lockup" href="/evimiz-sahane"><img src="/assets/logo-evimiz-sahane.svg" alt="Evimiz Şahane"/></a>
+      <button class="icon-button material-symbols-outlined" type="button" data-site-menu-close aria-label="Menüyü kapat">close</button>
+    </div>
+    <nav>
+      <a href="/hakkimizda_elite_estates" data-nav-link><span class="material-symbols-outlined">domain</span>Kurumsal</a>
+      <a href="/kentsel_donusum" data-nav-link><span class="material-symbols-outlined">apartment</span>Kentsel Dönüşüm</a>
+      <a href="/projelerimiz" data-nav-link><span class="material-symbols-outlined">view_in_ar</span>Projelerimiz</a>
+      <a href="/ilanlar" data-nav-link><span class="material-symbols-outlined">real_estate_agent</span>İlanlar</a>
+      <a href="/i_leti_im_ve_randevu_elite_estates" data-nav-link><span class="material-symbols-outlined">mail</span>İletişim</a>
+    </nav>
+    <div class="site-drawer__actions">
+      <a class="button button--orange" href="tel:+902129842633"><span class="material-symbols-outlined">phone</span>Ara</a>
+      <a class="button button--whatsapp" href="https://wa.me/902129842633"><span class="material-symbols-outlined">chat</span>WhatsApp</a>
+    </div>
+  </aside>
+
+  <header class="site-header">
+    <a class="brand-lockup" href="/evimiz-sahane"><img src="/assets/logo-evimiz-sahane.svg" alt="Evimiz Şahane"/></a>
+    <nav class="site-nav" aria-label="Ana menü">
+      <a href="/hakkimizda_elite_estates" data-nav-link>Kurumsal</a>
+      <a href="/kentsel_donusum" data-nav-link aria-current="page">Kentsel Dönüşüm</a>
+      <a href="/projelerimiz" data-nav-link>Projelerimiz</a>
+      <a href="/ilanlar" data-nav-link>İlanlar</a>
+      <a href="/i_leti_im_ve_randevu_elite_estates" data-nav-link>İletişim</a>
+    </nav>
+    <div class="site-actions">
+      <a class="button" href="/i_leti_im_ve_randevu_elite_estates">Ön Değerlendirme Al <span class="material-symbols-outlined">arrow_forward</span></a>
+      <button class="icon-button mobile-menu-button material-symbols-outlined" type="button" data-site-menu-open aria-label="Menüyü aç">menu</button>
+    </div>
+  </header>
+
   <main>
-    <section class="urban-hero">
+    <section class="shell page-hero">
       <div>
-        <p class="urban-eyebrow">Kentsel Dönüşüm</p>
-        <h1>Binanızı güvenli geleceğe hazırlayın</h1>
-        <p class="urban-lead">Risk analizi, proje planlama, malik iletişimi ve yasal süreç yönetimi ile depreme dayanıklı, modern ve değerli yaşam alanlarına dönüşümde yanınızdayız.</p>
-        <div class="urban-proof" aria-label="Kentsel dönüşüm avantajları">
-          <article>
-            <span class="material-symbols-outlined" aria-hidden="true">verified_user</span>
-            <div>
-              <strong>Güvenli Yapılar</strong>
-              <p>Depreme dayanıklı, modern ve uzun ömürlü çözümler.</p>
-            </div>
-          </article>
-          <article>
-            <span class="material-symbols-outlined" aria-hidden="true">groups</span>
-            <div>
-              <strong>Şeffaf Süreç</strong>
-              <p>Her adımda bilgilendirme ve açık iletişim.</p>
-            </div>
-          </article>
-          <article>
-            <span class="material-symbols-outlined" aria-hidden="true">workspace_premium</span>
-            <div>
-              <strong>Uzman Kadro</strong>
-              <p>Mimar, mühendis ve hukuk ekibiyle profesyonel yönetim.</p>
-            </div>
-          </article>
+        <p class="page-kicker">Kentsel Dönüşüm</p>
+        <h1>Riskli yapıları güvenli geleceğe taşıyoruz.</h1>
+        <p>Evimiz Şahane, kentsel dönüşümü yalnızca bina yenileme değil; malik güveni, mühendislik disiplini, yasal netlik ve yaşanabilir çevre tasarımı olarak ele alır.</p>
+        <div class="hero__actions">
+          <a class="button button--orange" href="/i_leti_im_ve_randevu_elite_estates">Bina Ön Görüşmesi Al</a>
+          <a class="button button--light" href="tel:+902129842633">Telefonla Görüş</a>
         </div>
       </div>
-      <figure class="urban-photo" aria-label="Modern kentsel dönüşüm projesi">
-        <img alt="Modern konut blokları ve peyzajlı yaşam alanı" src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&amp;fit=crop&amp;w=1600&amp;q=85"/>
-      </figure>
+      <img src="/assets/projects/avcilar-residence-02.jpeg" alt="Kentsel dönüşüm sonrası modern konut projesi"/>
     </section>
 
-    <section class="urban-process" aria-labelledby="urban-process-title">
-      <h2 id="urban-process-title">Dönüşüm Sürecimiz</h2>
-      <div class="urban-steps">
-        <article class="urban-step">
-          <span class="urban-step__number">01</span>
-          <h2>Risk Analizi</h2>
-          <p>Binanızın teknik incelemesini yapıyor, zemin ve yapı risklerini tespit ederek olası senaryoları ortaya koyuyoruz.</p>
-          <span class="material-symbols-outlined" aria-hidden="true">apartment</span>
-        </article>
-        <article class="urban-step">
-          <span class="urban-step__number">02</span>
-          <h2>Proje Planı</h2>
-          <p>Mimari proje, ruhsat, imar ve finansman dahil tüm teknik ve yasal süreçleri sizinle birlikte planlıyoruz.</p>
-          <span class="material-symbols-outlined" aria-hidden="true">edit_square</span>
-        </article>
-        <article class="urban-step">
-          <span class="urban-step__number">03</span>
-          <h2>Malik İletişimi</h2>
-          <p>Kat maliklerinin haklarını koruyarak şeffaf iletişim kuruyor, toplantı ve bilgilendirme süreçlerini düzenli yönetiyoruz.</p>
-          <span class="material-symbols-outlined" aria-hidden="true">diversity_3</span>
-        </article>
+    <section class="section section--zumthor">
+      <div class="shell content-grid">
+        <article class="info-card"><span class="material-symbols-outlined">verified_user</span><h2>Risk ve Uygunluk Analizi</h2><p>Mevcut yapı, imar durumu, zemin ve mülkiyet verileri birlikte değerlendirilir.</p></article>
+        <article class="info-card"><span class="material-symbols-outlined">groups</span><h2>Malik İletişimi</h2><p>Hak sahiplerinin beklentileri şeffaf toplantılar ve belgeli süreçlerle yönetilir.</p></article>
+        <article class="info-card"><span class="material-symbols-outlined">contract</span><h2>Yasal Süreç Yönetimi</h2><p>Sözleşme, ruhsat, proje onayı ve resmi başvurular planlı biçimde ilerletilir.</p></article>
       </div>
     </section>
 
-    <section class="urban-cta-band" aria-label="Kentsel dönüşüm danışmanlığı">
-      <div>
-        <p>Ücretsiz Ön Görüşme</p>
-        <h2>Binanız için doğru dönüşüm adımını birlikte atalım.</h2>
-        <small>Ücretsiz ön değerlendirme ile risklerinizi öğrenin, doğru planla güvenli geleceğe ilerleyin.</small>
+    <section class="section" aria-labelledby="urban-steps-title">
+      <div class="shell split-heading">
+        <div>
+          <h2 id="urban-steps-title">Kurumsal dönüşüm akışı.</h2>
+          <p>Her adımda ölçülebilir karar, net belge ve düzenli raporlama esastır.</p>
+        </div>
+        <div class="process-grid">
+          <article class="process-step"><strong>01</strong><h3>Ön İnceleme</h3><p>Bina, parsel, imar ve paydaş yapısı incelenir.</p></article>
+          <article class="process-step"><strong>02</strong><h3>Fizibilite</h3><p>Maliyet, metrekare, hak paylaşımı ve takvim netleşir.</p></article>
+          <article class="process-step"><strong>03</strong><h3>Projelendirme</h3><p>Mimari, statik ve mekanik disiplinler koordine edilir.</p></article>
+          <article class="process-step"><strong>04</strong><h3>Ruhsat</h3><p>Belediye ve ilgili kurum onayları takip edilir.</p></article>
+          <article class="process-step"><strong>05</strong><h3>Uygulama</h3><p>Şantiye, kalite, iş programı ve bütçe kontrol edilir.</p></article>
+          <article class="process-step"><strong>06</strong><h3>Teslim</h3><p>İskan, teslim ve satış sonrası süreç tamamlanır.</p></article>
+        </div>
       </div>
-      <div class="urban-cta-actions">
-        <a class="evimiz-cta" href="tel:+902129842633"><span class="material-symbols-outlined" aria-hidden="true">phone</span> Ara</a>
-        <a class="evimiz-cta" href="/i_leti_im_ve_randevu_elite_estates">İletişime Geç</a>
+    </section>
+
+    <section class="section section--black">
+      <div class="shell dark-panel">
+        <div>
+          <h2>Güven, dönüşümün ilk şartıdır.</h2>
+          <p>Mahalle ölçeğindeki dönüşümlerde yalnızca teknik yeterlilik değil, doğru iletişim ve açık taahhüt gerekir.</p>
+        </div>
+        <ul class="subtle-list">
+          <li><span class="material-symbols-outlined">check_circle</span>Malikler için anlaşılır süreç haritası ve toplantı desteği.</li>
+          <li><span class="material-symbols-outlined">check_circle</span>Ruhsat, proje ve şantiye ilerleyişinde düzenli raporlama.</li>
+          <li><span class="material-symbols-outlined">check_circle</span>Depreme dayanıklı, uzun ömürlü ve değer üreten yapı yaklaşımı.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="contact-band">
+      <div class="contact-band__sketch" aria-hidden="true"></div>
+      <div class="contact-band__copy">
+        <h2>Binanız için doğru dönüşüm adımını planlayalım.</h2>
+        <p>Ön görüşmede binanızın mevcut durumunu, beklentilerinizi ve uygulanabilir dönüşüm yolunu birlikte netleştirelim.</p>
+        <a class="button button--light" href="/i_leti_im_ve_randevu_elite_estates">Ön Görüşme Al</a>
+      </div>
+      <div class="contact-band__details">
+        <div class="contact-line"><span class="material-symbols-outlined">phone</span><div><strong>Telefon</strong><a href="tel:+902129842633">0 (212) 984 26 33</a></div></div>
+        <div class="contact-line"><span class="material-symbols-outlined">location_on</span><div><strong>Merkez</strong><span>Avcılar / İstanbul</span></div></div>
       </div>
     </section>
   </main>
-  <script src="/assets/evimiz-redesign.js?v=20260703-5" defer></script>
+
+  <footer class="site-footer">
+    <a class="brand-lockup" href="/evimiz-sahane"><img src="/assets/logo-evimiz-sahane.svg" alt="Evimiz Şahane"/></a>
+    <nav class="footer-nav"><a href="/hakkimizda_elite_estates">Kurumsal</a><a href="/projelerimiz">Projelerimiz</a><a href="/ilanlar">İlanlar</a><a href="/i_leti_im_ve_randevu_elite_estates">İletişim</a></nav>
+    <small>© 2026 Evimiz Şahane.</small>
+  </footer>
+  <script src="/assets/backend-client.js?v=20260704-4" defer></script>
+  <script src="/assets/evimiz-redesign.js?v=20260704-4" defer></script>
 </body>
 </html>

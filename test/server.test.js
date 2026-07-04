@@ -31,6 +31,32 @@ test("keeps Vercel server bundle assets explicit and runtime data private", () =
   }
 });
 
+test("renders public pages without runtime Tailwind CDN render blockers", async () => {
+  for (const target of ["/evimiz-sahane", "/projelerimiz", "/ilanlar"]) {
+    const response = await dispatch("GET", target);
+    assert.equal(response.statusCode, 200);
+    assert.doesNotMatch(response.body, /cdn\.tailwindcss\.com/);
+    assert.doesNotMatch(response.body, /<script id="tailwind-config"/);
+    assert.match(response.body, /\/assets\/evimiz-tailwind\.css\?v=20260704-4/);
+    assert.match(response.body, /\/assets\/evimiz-redesign\.css\?v=20260704-4/);
+  }
+});
+
+test("renders homepage as a corporate construction surface", async () => {
+  const response = await dispatch("GET", "/evimiz-sahane");
+  assert.equal(response.statusCode, 200);
+  assert.match(response.body, /Kurumsal İnşaat ve Kentsel Dönüşüm/);
+  assert.match(response.body, /Proje Görüşmesi Al/);
+  assert.doesNotMatch(response.body, /İlan Bul/);
+});
+
+test("serves static assets with long-lived immutable caching", async () => {
+  const response = await dispatch("GET", "/assets/evimiz-redesign.css");
+  assert.equal(response.statusCode, 200);
+  assert.match(response.headers["cache-control"], /max-age=31536000/);
+  assert.match(response.headers["cache-control"], /immutable/);
+});
+
 test("validates email addresses", () => {
   assert.equal(cleanEmail(" INFO@EVIMIZSAHANE.COM "), "info@evimizsahane.com");
   assert.equal(cleanEmail("not-an-email"), "");
@@ -100,7 +126,15 @@ test("redirects unauthenticated admin users to login", async () => {
 test("renders public listings page", async () => {
   const response = await dispatch("GET", "/ilanlar");
   assert.equal(response.statusCode, 200);
-  assert.match(response.body, /Güncel Satılık ve Kiralık Portföyler/);
+  assert.match(response.body, /Yayına alınan güncel ilanlar/);
+  assert.doesNotMatch(response.body, /\/assets\/projects\//);
+});
+
+test("renders projects as a separate construction portfolio", async () => {
+  const response = await dispatch("GET", "/projelerimiz");
+  assert.equal(response.statusCode, 200);
+  assert.match(response.body, /Yalnızca portföy değil, teslim disiplini/);
+  assert.match(response.body, /\/assets\/projects\//);
 });
 
 test("exposes crawl directives and sitemap", async () => {
@@ -112,6 +146,7 @@ test("exposes crawl directives and sitemap", async () => {
   const sitemap = await dispatch("GET", "/sitemap.xml");
   assert.equal(sitemap.statusCode, 200);
   assert.match(sitemap.body, /<loc>http:\/\/localhost:3000\/evimiz-sahane<\/loc>/);
+  assert.match(sitemap.body, /<loc>http:\/\/localhost:3000\/projelerimiz<\/loc>/);
   assert.match(sitemap.body, /<loc>http:\/\/localhost:3000\/ilanlar<\/loc>/);
 });
 
@@ -121,14 +156,20 @@ test("renders homepage with primary heading and SEO metadata", async () => {
   assert.match(response.body, /<meta name="description"/);
   assert.match(response.body, /<link rel="canonical" href="https:\/\/www\.evimizsahane\.com\/"/);
   assert.match(response.body, /<h1 class="brand-hero__title/);
-  assert.match(response.body, /name="name"/);
-  assert.match(response.body, /autocomplete="name"/);
+  assert.match(response.body, /Kentsel Dönüşüm Süreci/);
+  assert.match(response.body, /Teknik disiplin/);
 });
 
 test("uses absolute canonical URLs for public listing pages", async () => {
   const response = await dispatch("GET", "/ilanlar");
   assert.equal(response.statusCode, 200);
   assert.match(response.body, /<link rel="canonical" href="http:\/\/localhost:3000\/ilanlar">/);
+});
+
+test("serves uploaded listing images without exposing private runtime data", async () => {
+  const response = await dispatch("GET", "/uploads/properties/d08a2368-0ef1-4d8f-a100-8dc2ecd444c1/1782956121285-1-8a6c18aa-1abe-47d9-b31b-a3f910aa073e.png");
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.headers["content-type"], "image/png");
 });
 
 test("accepts contact leads with phone when email is omitted", async () => {

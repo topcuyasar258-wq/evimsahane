@@ -1,10 +1,10 @@
 [
   {
     "id": "avcilar-kentsel-donusum-daire",
-    "title": "Avcılar Merkezde Yeni Yaşam Dairesi",
+    "title": "Avcılar Modern Residence",
     "slug": "avcilar-kentsel-donusum-daire",
     "listingType": "satilik",
-    "propertyType": "Daire",
+    "propertyType": "daire",
     "price": "₺8.750.000",
     "priceText": "₺8.750.000",
     "currency": "TL",
@@ -26,18 +26,30 @@
     "dues": "",
     "creditEligible": false,
     "swapAvailable": false,
-    "description": "Detaylı bilgi almak için bizimle iletişime geçin.",
-    "coverImage": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=80",
-    "seoTitle": "Avcılar Merkezde Yeni Yaşam Dairesi",
-    "seoDescription": "",
+    "description": "Avcılar merkez aksında geliştirilen modern residence projesi; güçlü cephe dili, kontrollü giriş, peyzaj alanı ve aile yaşamına uygun plan kurgusuyla öne çıkar. Detaylı bilgi ve proje görüşmesi için ekibimizle iletişime geçin.",
+    "coverImage": "/assets/projects/avcilar-residence-01.jpeg",
+    "seoTitle": "Avcılar Modern Residence",
+    "seoDescription": "Avcılar merkezde modern residence projesi. Cephe, plan ve portföy detayları için Evimiz Şahane ile görüşün.",
     "status": "active",
     "featured": true,
     "images": [
       {
         "id": "legacy-cover",
-        "url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=80",
-        "alt": "Avcılar Merkezde Yeni Yaşam Dairesi",
+        "url": "/assets/projects/avcilar-residence-01.jpeg",
+        "alt": "Avcılar Modern Residence dış cephe",
         "sortOrder": 0
+      },
+      {
+        "id": "avcilar-view-02",
+        "url": "/assets/projects/avcilar-residence-02.jpeg",
+        "alt": "Avcılar Modern Residence perspektif görünüm",
+        "sortOrder": 1
+      },
+      {
+        "id": "avcilar-view-03",
+        "url": "/assets/projects/avcilar-residence-03.jpeg",
+        "alt": "Avcılar Modern Residence vaziyet görünümü",
+        "sortOrder": 2
       }
     ],
     "createdAt": "2026-07-02T01:35:21.264Z",
@@ -45,10 +57,10 @@
   },
   {
     "id": "avcilar-aile-rezidans",
-    "title": "Geniş Ailelere Uygun Rezidans",
+    "title": "Beylikdüzü Premium Villalar",
     "slug": "avcilar-aile-rezidans",
     "listingType": "satilik",
-    "propertyType": "Rezidans",
+    "propertyType": "villa",
     "price": "₺11.200.000",
     "priceText": "₺11.200.000",
     "currency": "TL",
@@ -70,18 +82,30 @@
     "dues": "",
     "creditEligible": false,
     "swapAvailable": false,
-    "description": "Detaylı bilgi almak için bizimle iletişime geçin.",
-    "coverImage": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=80",
-    "seoTitle": "Geniş Ailelere Uygun Rezidans",
-    "seoDescription": "",
+    "description": "Taş, ahşap ve koyu cephe malzemelerini dengeli kullanan premium villa projesi; bahçe kullanımı, geniş cam yüzeyler ve kontrollü mahremiyet kurgusuyla tasarlanmıştır.",
+    "coverImage": "/assets/projects/premium-villa-01.jpeg",
+    "seoTitle": "Beylikdüzü Premium Villalar",
+    "seoDescription": "Beylikdüzü premium villa projesi, modern cephe dili ve peyzajlı yaşam alanlarıyla Evimiz Şahane portföyünde.",
     "status": "active",
     "featured": true,
     "images": [
       {
         "id": "legacy-cover",
-        "url": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=80",
-        "alt": "Geniş Ailelere Uygun Rezidans",
+        "url": "/assets/projects/premium-villa-01.jpeg",
+        "alt": "Beylikdüzü Premium Villalar dış cephe",
         "sortOrder": 0
+      },
+      {
+        "id": "premium-villa-02",
+        "url": "/assets/projects/premium-villa-02.jpeg",
+        "alt": "Premium villa cephe detayı",
+        "sortOrder": 1
+      },
+      {
+        "id": "premium-villa-03",
+        "url": "/assets/projects/premium-villa-03.jpeg",
+        "alt": "Premium villa arka cephe",
+        "sortOrder": 2
       }
     ],
     "createdAt": "2026-07-02T01:35:21.264Z",
@@ -89,20 +113,20 @@
   },
   {
     "id": "istanbul-ticari-ofis",
-    "title": "Modern Ticari Ofis Katı",
+    "title": "Bahçeşehir Yaşam Parkı",
     "slug": "istanbul-ticari-ofis",
     "listingType": "kiralik",
-    "propertyType": "Ticari",
-    "price": "₺95.000 /ay",
-    "priceText": "₺95.000 /ay",
+    "propertyType": "mustakil_ev",
+    "price": "₺17.900.000",
+    "priceText": "₺17.900.000",
     "currency": "TL",
     "city": "İstanbul",
-    "district": "İstanbul",
+    "district": "Başakşehir",
     "neighborhood": "",
     "addressDetail": "",
-    "grossM2": 310,
+    "grossM2": 260,
     "netM2": "",
-    "roomCount": "8 Bölüm",
+    "roomCount": "4+1",
     "salonCount": "",
     "buildingAge": "",
     "floor": "",
@@ -114,17 +138,17 @@
     "dues": "",
     "creditEligible": false,
     "swapAvailable": false,
-    "description": "Detaylı bilgi almak için bizimle iletişime geçin.",
-    "coverImage": "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1400&q=80",
-    "seoTitle": "Modern Ticari Ofis Katı",
-    "seoDescription": "",
+    "description": "Bahçeşehir çevresinde peyzaj öncelikli, modern villa yaşamını destekleyen proje seçkisi. Proje, geniş bahçe kullanımı ve sakin yerleşim dokusuyla öne çıkar.",
+    "coverImage": "/assets/projects/landscape-villa-01.jpeg",
+    "seoTitle": "Bahçeşehir Yaşam Parkı",
+    "seoDescription": "Bahçeşehir çevresinde peyzajlı modern villa projesi. Evimiz Şahane proje portföyünü inceleyin.",
     "status": "active",
     "featured": true,
     "images": [
       {
         "id": "legacy-cover",
-        "url": "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1400&q=80",
-        "alt": "Modern Ticari Ofis Katı",
+        "url": "/assets/projects/landscape-villa-01.jpeg",
+        "alt": "Bahçeşehir Yaşam Parkı peyzajlı villa",
         "sortOrder": 0
       }
     ],
