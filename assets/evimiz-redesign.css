@@ -1476,3 +1476,193 @@ body > nav[class*="bottom-0"][class*="fixed"] {
     padding: 28px 16px;
   }
 }
+
+/* --- Design revision pass: consistency, motion, accessibility (colors, type and logo untouched) --- */
+
+.content-grid--single {
+  grid-template-columns: 1fr;
+}
+
+.subtle-list--spaced {
+  margin-top: 28px;
+}
+
+.button-stack {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.section-subheading {
+  margin: 0 0 4px;
+  color: var(--brand-black);
+  font-size: 22px;
+  font-weight: 820;
+}
+
+.similar-listing {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  text-decoration: none;
+  transition: transform .18s ease;
+}
+
+.similar-listing:hover {
+  transform: translateX(2px);
+}
+
+.similar-listing img {
+  width: 96px;
+  height: 96px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.similar-listing strong {
+  display: block;
+  color: var(--brand-black);
+}
+
+.similar-listing .muted {
+  color: var(--brand-muted);
+}
+
+.section--black .split-heading h2,
+.section--black .split-heading h3,
+.section--black .page-hero h1 {
+  color: var(--brand-white);
+}
+
+.section--black .split-heading p,
+.section--black .page-hero p {
+  color: rgba(255, 255, 255, .72);
+}
+
+.two-column-layout h2 {
+  margin: 0;
+  color: var(--brand-black);
+  font-size: 42px;
+  font-weight: 820;
+  line-height: 1.08;
+}
+
+.form-panel h2 {
+  margin: 0 0 10px;
+  color: var(--brand-black);
+  font-size: 30px;
+  font-weight: 820;
+}
+
+.form-panel__lead {
+  margin: 0 0 24px;
+  color: var(--brand-muted);
+  line-height: 1.65;
+}
+
+/* Card hover polish: subtle lift + image zoom, applied consistently across the site */
+
+.info-card,
+.project-card,
+.listing-card,
+.technical-item,
+.capability,
+.process-step,
+.portfolio-case__media,
+.form-panel {
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+
+.info-card:hover,
+.listing-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--brand-carmine);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .08);
+}
+
+.project-card img,
+.listing-card img,
+.technical-item img,
+.portfolio-case__media img,
+.portfolio-hero figure img {
+  transition: transform .5s ease;
+}
+
+.project-card:hover img,
+.listing-card:hover img,
+.technical-item:hover img,
+.portfolio-case__media:hover img {
+  transform: scale(1.045);
+}
+
+.project-card,
+.technical-item,
+.portfolio-case__media {
+  overflow: hidden;
+}
+
+.project-card img,
+.technical-item img {
+  overflow: hidden;
+}
+
+.capability:hover .material-symbols-outlined,
+.info-card:hover .material-symbols-outlined {
+  color: var(--brand-carmine);
+}
+
+.button {
+  will-change: transform;
+}
+
+/* Accessible focus states for keyboard navigation */
+
+a:focus-visible,
+button:focus-visible,
+.button:focus-visible,
+.icon-button:focus-visible,
+[data-nav-link]:focus-visible {
+  outline: 2px solid var(--brand-carmine);
+  outline-offset: 3px;
+}
+
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible {
+  outline: none;
+}
+
+/* Scroll-reveal: cards and section intros fade/slide in once, respecting reduced-motion */
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity .6s ease, transform .6s ease;
+  }
+
+  [data-reveal].is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .button:hover,
+  .info-card:hover,
+  .listing-card:hover {
+    transform: none;
+  }
+
+  .project-card:hover img,
+  .listing-card:hover img,
+  .technical-item:hover img,
+  .portfolio-case__media:hover img {
+    transform: none;
+  }
+}

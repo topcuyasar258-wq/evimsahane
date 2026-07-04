@@ -22,7 +22,7 @@ test("keeps Vercel server bundle assets explicit and runtime data private", () =
   const includeFiles = vercelConfig.functions["server.js"].includeFiles;
   const vercelIgnore = fs.readFileSync(".vercelignore", "utf8");
 
-  for (const publicPath of ["assets/**", "*/code.html", "data/{brand,properties}.json"]) {
+  for (const publicPath of ["assets/**", "pages/*/code.html", "data/{brand,properties}.json"]) {
     assert.match(includeFiles, new RegExp(publicPath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), `${publicPath} should be included in Vercel bundle`);
   }
 
@@ -198,9 +198,17 @@ test("serves the clean corporate, contact and valuation URLs with self-hosted ca
 });
 
 test("serves uploaded listing images without exposing private runtime data", async () => {
-  const response = await dispatch("GET", "/uploads/properties/d08a2368-0ef1-4d8f-a100-8dc2ecd444c1/1782956121285-1-8a6c18aa-1abe-47d9-b31b-a3f910aa073e.png");
-  assert.equal(response.statusCode, 200);
-  assert.equal(response.headers["content-type"], "image/png");
+  const fixtureDir = "uploads/properties";
+  const fixtureFile = `${fixtureDir}/test-fixture-upload.png`;
+  fs.mkdirSync(fixtureDir, { recursive: true });
+  fs.writeFileSync(fixtureFile, Buffer.from([0x89, 0x50, 0x4e, 0x47]));
+  try {
+    const response = await dispatch("GET", "/uploads/properties/test-fixture-upload.png");
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.headers["content-type"], "image/png");
+  } finally {
+    fs.rmSync(fixtureFile, { force: true });
+  }
 });
 
 test("accepts contact leads with phone when email is omitted", async () => {

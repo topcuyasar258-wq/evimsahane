@@ -51,4 +51,35 @@
       });
     });
   });
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const revealSelector = [
+    ".capability",
+    ".info-card",
+    ".project-card",
+    ".process-step",
+    ".technical-item",
+    ".portfolio-case",
+    ".listing-card",
+    ".dark-panel",
+    ".form-panel"
+  ].join(",");
+  const revealTargets = document.querySelectorAll(revealSelector);
+
+  if (!prefersReducedMotion && revealTargets.length && "IntersectionObserver" in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+
+    revealTargets.forEach((target, index) => {
+      target.setAttribute("data-reveal", "");
+      target.style.transitionDelay = `${Math.min(index % 4, 3) * 60}ms`;
+      observer.observe(target);
+    });
+  }
 })();
