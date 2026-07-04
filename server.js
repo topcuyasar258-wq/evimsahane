@@ -60,7 +60,6 @@ function traceVercelRuntimeFiles() {
     fsSync.readFileSync(path.join(rootDir, "data", "properties.json")),
     fsSync.readFileSync(path.join(rootDir, "evimi_sat_kirala_cretsiz_de_erleme", "code.html")),
     fsSync.readFileSync(path.join(rootDir, "hakkimizda_elite_estates", "code.html")),
-    fsSync.readFileSync(path.join(rootDir, "i_lan_detay_elite_estates", "code.html")),
     fsSync.readFileSync(path.join(rootDir, "i_leti_im_ve_randevu_elite_estates", "code.html")),
     fsSync.readFileSync(path.join(rootDir, "kentsel_donusum", "code.html")),
     fsSync.readFileSync(path.join(rootDir, "portf_y_ve_i_lanlar_elite_estates", "code.html"))
@@ -284,11 +283,6 @@ function displayType(value) {
 function isProjectPortfolioItem(property) {
   const coverImage = String(property.coverImage || "");
   return Boolean(property.featured) && coverImage.startsWith("/assets/projects/");
-}
-
-function isPublicListing(property) {
-  const coverImage = String(property.coverImage || "");
-  return property.status === "active" && coverImage.startsWith("/uploads/properties/");
 }
 
 function priceText(property) {
@@ -727,19 +721,14 @@ async function renderRobots(req, res) {
 }
 
 async function renderSitemap(req, res) {
-  const staticUrls = [
+  const urls = [
     "/evimiz-sahane",
     "/projelerimiz",
-    "/ilanlar",
     "/evimi_sat_kirala_cretsiz_de_erleme",
     "/kentsel-donusum",
     "/hakkimizda_elite_estates",
     "/i_leti_im_ve_randevu_elite_estates"
   ];
-  const properties = (await readProperties())
-    .filter(isPublicListing)
-    .map((property) => `/ilan/${property.slug}`);
-  const urls = [...staticUrls, ...properties];
   const now = new Date().toISOString().slice(0, 10);
   const body = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -789,7 +778,7 @@ ${extraHead}
 </head>`;
 }
 
-function siteHeader(active = "ilanlar") {
+function siteHeader(active = "projeler") {
   const current = (key) => active === key ? ' aria-current="page"' : "";
   return `<div class="site-drawer-overlay" data-site-drawer-overlay></div>
 <aside class="site-drawer" data-site-drawer aria-label="Mobil menü">
@@ -798,7 +787,6 @@ function siteHeader(active = "ilanlar") {
 <a href="/hakkimizda_elite_estates" data-nav-link><span class="material-symbols-outlined">domain</span>Kurumsal</a>
 <a href="/kentsel_donusum" data-nav-link><span class="material-symbols-outlined">apartment</span>Kentsel Dönüşüm</a>
 <a href="/projelerimiz" data-nav-link><span class="material-symbols-outlined">view_in_ar</span>Projelerimiz</a>
-<a href="/ilanlar" data-nav-link><span class="material-symbols-outlined">real_estate_agent</span>İlanlar</a>
 <a href="/i_leti_im_ve_randevu_elite_estates" data-nav-link><span class="material-symbols-outlined">mail</span>İletişim</a>
 </nav>
 <div class="site-drawer__actions"><a class="button button--orange" href="tel:+902129842633">Ara</a><a class="button button--whatsapp" href="https://wa.me/902129842633">WhatsApp</a></div>
@@ -809,7 +797,6 @@ function siteHeader(active = "ilanlar") {
 <a href="/hakkimizda_elite_estates" data-nav-link${current("kurumsal")}>Kurumsal</a>
 <a href="/kentsel_donusum" data-nav-link${current("kentsel")}>Kentsel Dönüşüm</a>
 <a href="/projelerimiz" data-nav-link${current("projeler")}>Projelerimiz</a>
-<a href="/ilanlar" data-nav-link${current("ilanlar")}>İlanlar</a>
 <a href="/i_leti_im_ve_randevu_elite_estates" data-nav-link${current("iletisim")}>İletişim</a>
 </nav>
 <div class="site-actions"><a class="button" href="/i_leti_im_ve_randevu_elite_estates">Proje Görüşmesi Al <span class="material-symbols-outlined">arrow_forward</span></a><button class="icon-button mobile-menu-button material-symbols-outlined" type="button" data-site-menu-open aria-label="Menüyü aç">menu</button></div>
@@ -896,7 +883,7 @@ async function renderAdminList(req, res, url) {
 <td class="p-3">${escapeHtml([property.neighborhood, property.district, property.city].filter(Boolean).join(" / "))}</td>
 <td class="p-3"><span class="badge bg-[#fff0e8] text-[#9f2d00]">${displayType(property.status)}</span></td>
 <td class="p-3">${escapeHtml(new Date(property.createdAt).toLocaleDateString("tr-TR"))}</td>
-<td class="p-3"><div class="flex gap-2"><a class="btn btn-accent py-2" href="/admin/ilan-duzenle/${encodeURIComponent(property.id)}">Düzenle</a><a class="btn border border-[#c6c6cd] bg-white py-2" href="/ilan/${encodeURIComponent(property.slug)}" target="_blank" rel="noopener">Sitede Gör</a></div></td>
+<td class="p-3"><div class="flex gap-2"><a class="btn btn-accent py-2" href="/admin/ilan-duzenle/${encodeURIComponent(property.id)}">Düzenle</a></div></td>
 <td class="p-3">
 <form method="post" action="/admin/ilan-pasife-al/${encodeURIComponent(property.id)}" onsubmit="return confirm('İlan pasife alınsın mı?')">
 <input type="hidden" name="csrf" value="${escapeHtml(session.csrfToken)}">
@@ -1086,26 +1073,6 @@ async function handleAdmin(req, res, url) {
   sendHtml(res, 404, `${baseHead("Admin sayfası bulunamadı")}<body>Admin sayfası bulunamadı.</body></html>`);
 }
 
-function filterPublicProperties(properties, url) {
-  const listingType = cleanText(url.searchParams.get("listingType") || "");
-  const propertyType = cleanText(url.searchParams.get("propertyType") || "");
-  const district = cleanText(url.searchParams.get("district") || "").toLocaleLowerCase("tr-TR");
-  const roomCount = cleanText(url.searchParams.get("roomCount") || "");
-  const minPrice = Number(cleanText(url.searchParams.get("minPrice") || "").replace(/\D/g, ""));
-  const maxPrice = Number(cleanText(url.searchParams.get("maxPrice") || "").replace(/\D/g, ""));
-  return properties.filter((property) => {
-    const statusOk = isPublicListing(property);
-    const listingOk = !listingType || property.listingType === listingType;
-    const typeOk = !propertyType || slugify(property.propertyType) === propertyType || property.propertyType === propertyType;
-    const districtOk = !district || property.district.toLocaleLowerCase("tr-TR").includes(district);
-    const roomOk = !roomCount || property.roomCount === roomCount;
-    const priceNumber = Number(String(property.price).replace(/\D/g, ""));
-    const minOk = !minPrice || priceNumber >= minPrice;
-    const maxOk = !maxPrice || priceNumber <= maxPrice;
-    return statusOk && listingOk && typeOk && districtOk && roomOk && minOk && maxOk;
-  });
-}
-
 async function renderProjectsPortfolio(req, res) {
   const projects = (await readProperties())
     .filter(isProjectPortfolioItem)
@@ -1143,12 +1110,39 @@ ${images.length > 1 ? `<div class="portfolio-case__thumbs">${images.slice(1).map
   const title = "Projelerimiz | Evimiz Şahane";
   const description = "Evimiz Şahane proje portföyü: kentsel dönüşüm, konut, villa ve yaşam alanı geliştirme çalışmalarımız.";
   const canonical = absoluteUrl(req, "/projelerimiz");
+  const projectListJsonLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: title,
+    description,
+    url: canonical,
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: projects.map((project, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        item: {
+          "@type": "Place",
+          name: project.title,
+          description: project.description,
+          image: project.coverImage,
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: project.district,
+            addressRegion: project.city,
+            addressCountry: "TR"
+          }
+        }
+      }))
+    }
+  }).replace(/</g, "\\u003c");
   const seoHead = `<link rel="canonical" href="${escapeHtml(canonical)}">
 <meta property="og:title" content="${escapeHtml(title)}">
 <meta property="og:description" content="${escapeHtml(description)}">
 <meta property="og:type" content="website">
 <meta property="og:url" content="${escapeHtml(canonical)}">
-<meta property="og:image" content="${escapeHtml(projects[0]?.coverImage || "/assets/projects/avcilar-residence-01.jpeg")}">`;
+<meta property="og:image" content="${escapeHtml(projects[0]?.coverImage || "/assets/projects/avcilar-residence-01.jpeg")}">
+<script type="application/ld+json">${projectListJsonLd}</script>`;
   sendHtml(res, 200, `${baseHead(title, description, seoHead)}
 <body class="brand-site">${siteHeader("projeler")}
 <main>
@@ -1182,97 +1176,6 @@ ${images.length > 1 ? `<div class="portfolio-case__thumbs">${images.slice(1).map
 <div class="contact-band__details"><div class="contact-line"><span class="material-symbols-outlined">phone</span><div><strong>Telefon</strong><a href="tel:+902129842633">0 (212) 984 26 33</a></div></div><div class="contact-line"><span class="material-symbols-outlined">location_on</span><div><strong>Merkez</strong><span>Avcılar / İstanbul</span></div></div></div>
 </section>
 </main></body></html>`);
-}
-
-async function renderPublicList(req, res, url) {
-  const properties = filterPublicProperties(await readProperties(), url).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
-  const districts = [...new Set((await readProperties()).filter(isPublicListing).map((property) => property.district).filter(Boolean))].sort();
-  const cards = properties.map((property) => {
-    const message = encodeURIComponent(`Merhaba, sitenizdeki ${property.title} ilanı hakkında bilgi almak istiyorum.`);
-    return `<article class="listing-card">
-<a href="/ilan/${encodeURIComponent(property.slug)}" class="block">
-<div class="relative"><img src="${escapeHtml(property.coverImage)}" alt="${escapeHtml(property.title)}"><span class="badge badge--orange absolute left-3 top-3">${escapeHtml(displayType(property.propertyType))}</span><span class="badge absolute right-3 top-3">${displayType(property.listingType)}</span></div>
-<div class="listing-card__body">
-<h2>${escapeHtml(property.title)}</h2>
-<span class="price">${escapeHtml(priceText(property))}</span>
-<p class="flex items-center gap-1 text-sm text-[#55585d]"><span class="material-symbols-outlined text-base">location_on</span>${escapeHtml([property.neighborhood, property.district, property.city].filter(Boolean).join(" / "))}</p>
-<div class="spec-grid"><span>${escapeHtml(property.grossM2 || "-")} m²</span><span>${escapeHtml(property.roomCount || "-")}</span><span>${escapeHtml(displayType(property.propertyType))}</span></div>
-</div></a>
-<div class="grid grid-cols-[1fr_auto] gap-2 px-4 pb-4"><a class="button" href="/ilan/${encodeURIComponent(property.slug)}">Detayları Gör</a><a class="button button--whatsapp px-3" aria-label="WhatsApp'tan bilgi al" href="https://wa.me/902129842633?text=${message}"><span class="material-symbols-outlined">chat</span></a></div>
-</article>`;
-  }).join("");
-  const title = "İlanlar | Evimiz Şahane";
-  const description = "Evimiz Şahane admin panelinden yayınlanan güncel satılık ve kiralık gayrimenkul ilanları.";
-  const canonical = absoluteUrl(req, "/ilanlar");
-  const seoHead = `<link rel="canonical" href="${escapeHtml(canonical)}">
-<meta property="og:title" content="${escapeHtml(title)}">
-<meta property="og:description" content="${escapeHtml(description)}">
-<meta property="og:type" content="website">
-<meta property="og:url" content="${escapeHtml(canonical)}">`;
-  sendHtml(res, 200, `${baseHead(title, description, seoHead)}
-<body class="brand-site listing-shell">${siteHeader("ilanlar")}
-<main>
-<section class="listing-hero">
-<div class="shell">
-<p class="page-kicker">İlanlar</p>
-<h1>Yayına alınan güncel ilanlar.</h1>
-<p>Bu sayfa admin panelinden eklenen satılık ve kiralık ilanların ayrı vitrini olarak çalışır. Kurumsal proje portföyümüz için Projelerimiz sayfasını inceleyebilirsiniz.</p>
-<div class="listing-hero__actions"><a class="button button--light" href="/projelerimiz">Projelerimizi İncele</a><a class="button button--orange" href="/i_leti_im_ve_randevu_elite_estates">İletişime Geç</a></div>
-</div>
-</section>
-<section class="shell">
-<form class="filter-bar" method="get">
-<div class="field"><label for="listing-type-filter">Satılık / Kiralık</label><select id="listing-type-filter" name="listingType"><option value="">Tümü</option>${["satilik", "kiralik"].map((item) => `<option value="${item}" ${url.searchParams.get("listingType") === item ? "selected" : ""}>${displayType(item)}</option>`).join("")}</select></div>
-<div class="field"><label for="property-type-filter">Tür</label><select id="property-type-filter" name="propertyType"><option value="">Tümü</option>${["daire", "villa", "arsa", "isyeri", "dubleks", "residence", "mustakil_ev"].map((item) => `<option value="${item}" ${url.searchParams.get("propertyType") === item ? "selected" : ""}>${displayType(item)}</option>`).join("")}</select></div>
-<div class="field"><label for="district-filter">İlçe</label><select id="district-filter" name="district"><option value="">Tümü</option>${districts.map((item) => `<option value="${escapeHtml(item)}" ${url.searchParams.get("district") === item ? "selected" : ""}>${escapeHtml(item)}</option>`).join("")}</select></div>
-<div class="field"><label for="room-filter">Oda</label><input id="room-filter" name="roomCount" value="${escapeHtml(url.searchParams.get("roomCount") || "")}" placeholder="3+1"></div>
-<div class="field"><label for="min-price-filter">Min fiyat</label><input id="min-price-filter" name="minPrice" inputmode="numeric" value="${escapeHtml(url.searchParams.get("minPrice") || "")}"></div>
-<button class="button button--orange" type="submit">Filtrele</button>
-</form>
-<div class="listing-grid">${cards || `<div class="info-card">Henüz aktif ilan bulunamadı. Yeni ilanlar admin panelinden yayına alındığında burada listelenir.</div>`}</div>
-</section>
-</main></body></html>`);
-}
-
-async function renderPropertyDetail(req, res, slug) {
-  const properties = await readProperties();
-  const property = properties.find((item) => item.slug === slug && isPublicListing(item));
-  if (!property) {
-    sendHtml(res, 404, `${baseHead("İlan bulunamadı")}<body>${siteHeader("ilanlar")}<main class="mx-auto max-w-3xl p-6">İlan bulunamadı.</main></body></html>`);
-    return;
-  }
-  const brand = await readJson("brand.json", {});
-  const phoneHref = brand.contact?.phoneHref || "+902129842633";
-  const whatsappHref = brand.contact?.whatsappHref || "902129842633";
-  const message = encodeURIComponent(`Merhaba, sitenizdeki ${property.title} ilanı hakkında bilgi almak istiyorum.`);
-  const canonical = absoluteUrl(req, `/ilan/${property.slug}`);
-  const gallery = property.images.map((image) => `<img src="${escapeHtml(image.url)}" alt="${escapeHtml(image.alt || property.title)}">`).join("");
-  const similar = properties.filter((item) => item.id !== property.id && isPublicListing(item) && (item.propertyType === property.propertyType || item.district === property.district)).slice(0, 3);
-  const similarHtml = similar.map((item) => `<a class="info-card" href="/ilan/${encodeURIComponent(item.slug)}" style="display:grid;grid-template-columns:96px 1fr;gap:14px;text-decoration:none"><img src="${escapeHtml(item.coverImage)}" alt="" style="width:96px;height:96px;object-fit:cover"><span><strong style="display:block;color:#000">${escapeHtml(item.title)}</strong><span style="color:#55585d">${escapeHtml(priceText(item))}</span></span></a>`).join("");
-  const seoHead = `<link rel="canonical" href="${escapeHtml(canonical)}">
-<meta property="og:title" content="${escapeHtml(property.seoTitle || property.title)}">
-<meta property="og:description" content="${escapeHtml(property.seoDescription)}">
-<meta property="og:image" content="${escapeHtml(property.coverImage)}">`;
-  sendHtml(res, 200, `${baseHead(property.seoTitle || property.title, property.seoDescription, seoHead)}
-<body class="brand-site">${siteHeader("ilanlar")}
-<main class="shell detail-layout">
-<section>
-<img src="${escapeHtml(property.coverImage)}" alt="${escapeHtml(property.title)}" class="detail-main-image">
-<div class="detail-gallery">${gallery}</div>
-<article class="detail-panel"><div><span class="badge badge--orange">${displayType(property.listingType)}</span><h1>${escapeHtml(property.title)}</h1><p class="price">${escapeHtml(priceText(property))}</p><p>${escapeHtml([property.neighborhood, property.district, property.city].filter(Boolean).join(" / "))}</p></div>
-<div class="detail-feature-grid">${[
-  ["m²", property.grossM2], ["Oda", property.roomCount], ["Banyo", property.bathroomCount], ["Kat", property.floor],
-  ["Isıtma", property.heating], ["Balkon", property.hasBalcony ? "Var" : "Yok"], ["Eşyalı", property.isFurnished ? "Evet" : "Hayır"], ["Kredi", property.creditEligible ? "Uygun" : "Belirtilmedi"]
-].map(([label, value]) => `<div class="detail-feature"><span>${label}</span><strong>${escapeHtml(value || "-")}</strong></div>`).join("")}</div>
-<div class="prose max-w-none leading-7">${textToParagraphs(property.description)}</div></article>
-</section>
-<aside class="detail-sidebar">
-<div class="info-card"><span class="material-symbols-outlined">forum</span><h2>Bu portföyle ilgileniyorum</h2><p>Detaylı bilgi ve proje görüşmesi için ekibimizle iletişime geçin.</p><div style="display:grid;gap:10px;margin-top:18px"><a class="button button--whatsapp" href="https://wa.me/${escapeHtml(whatsappHref)}?text=${message}"><span class="material-symbols-outlined">chat</span>WhatsApp'tan Bilgi Al</a><a class="button" href="tel:${escapeHtml(phoneHref)}"><span class="material-symbols-outlined">phone</span>Telefonla Ara</a></div></div>
-${similarHtml ? `<div class="grid gap-3"><h2 style="font-size:22px;font-weight:820;color:#000">Benzer Portföyler</h2>${similarHtml}</div>` : ""}
-</aside>
-</main>
-<div class="mobile-sticky-cta grid grid-cols-2 gap-2 md:hidden"><a class="btn btn-wa" href="https://wa.me/${escapeHtml(whatsappHref)}?text=${message}">WhatsApp</a><a class="btn btn-primary" href="tel:${escapeHtml(phoneHref)}">Ara</a></div>
-</body></html>`);
 }
 
 function staticPathParts(urlPathname) {
@@ -1313,7 +1216,7 @@ async function serveStatic(req, res, url) {
   }
 
   if (url.pathname === "/i_lan_detay_elite_estates") {
-    sendRedirect(res, "/ilanlar");
+    sendRedirect(res, "/projelerimiz");
     return;
   }
 
@@ -1376,17 +1279,8 @@ async function requestHandler(req, res) {
       await handleAdmin(req, res, url);
       return;
     }
-    if (req.method === "GET" && url.pathname === "/ilanlar") {
-      await renderPublicList(req, res, url);
-      return;
-    }
     if (req.method === "GET" && (url.pathname === "/projelerimiz" || url.pathname === "/projeler")) {
       await renderProjectsPortfolio(req, res);
-      return;
-    }
-    const detailMatch = url.pathname.match(/^\/ilan\/([^/]+)$/);
-    if (req.method === "GET" && detailMatch) {
-      await renderPropertyDetail(req, res, decodeURIComponent(detailMatch[1]));
       return;
     }
     await serveStatic(req, res, url);

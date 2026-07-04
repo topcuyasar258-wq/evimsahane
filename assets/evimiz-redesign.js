@@ -27,8 +27,7 @@
   const currentPath = window.location.pathname.replace(/\/$/, "") || "/evimiz-sahane";
   document.querySelectorAll("[data-nav-link]").forEach((link) => {
     const href = (link.getAttribute("href") || "").replace(/\/$/, "");
-    const isListings = href === "/ilanlar" && currentPath.startsWith("/ilan");
-    if (href === currentPath || isListings) {
+    if (href === currentPath) {
       link.setAttribute("aria-current", "page");
     }
   });
