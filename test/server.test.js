@@ -32,7 +32,7 @@ test("keeps Vercel server bundle assets explicit and runtime data private", () =
 });
 
 test("renders public pages without runtime Tailwind CDN render blockers", async () => {
-  for (const target of ["/evimiz-sahane", "/projelerimiz", "/ilanlar"]) {
+  for (const target of ["/evimiz-sahane", "/projelerimiz"]) {
     const response = await dispatch("GET", target);
     assert.equal(response.statusCode, 200);
     assert.doesNotMatch(response.body, /cdn\.tailwindcss\.com/);
@@ -123,11 +123,9 @@ test("redirects unauthenticated admin users to login", async () => {
   assert.equal(response.headers.location, "/admin/login");
 });
 
-test("renders public listings page", async () => {
+test("no longer serves a public listings page", async () => {
   const response = await dispatch("GET", "/ilanlar");
-  assert.equal(response.statusCode, 200);
-  assert.match(response.body, /Yayına alınan güncel ilanlar/);
-  assert.doesNotMatch(response.body, /\/assets\/projects\//);
+  assert.equal(response.statusCode, 404);
 });
 
 test("renders projects as a separate construction portfolio", async () => {
@@ -147,7 +145,7 @@ test("exposes crawl directives and sitemap", async () => {
   assert.equal(sitemap.statusCode, 200);
   assert.match(sitemap.body, /<loc>http:\/\/localhost:3000\/evimiz-sahane<\/loc>/);
   assert.match(sitemap.body, /<loc>http:\/\/localhost:3000\/projelerimiz<\/loc>/);
-  assert.match(sitemap.body, /<loc>http:\/\/localhost:3000\/ilanlar<\/loc>/);
+  assert.doesNotMatch(sitemap.body, /\/ilanlar/);
 });
 
 test("renders homepage with primary heading and SEO metadata", async () => {
@@ -161,9 +159,9 @@ test("renders homepage with primary heading and SEO metadata", async () => {
 });
 
 test("uses absolute canonical URLs for public listing pages", async () => {
-  const response = await dispatch("GET", "/ilanlar");
+  const response = await dispatch("GET", "/projelerimiz");
   assert.equal(response.statusCode, 200);
-  assert.match(response.body, /<link rel="canonical" href="http:\/\/localhost:3000\/ilanlar">/);
+  assert.match(response.body, /<link rel="canonical" href="http:\/\/localhost:3000\/projelerimiz">/);
 });
 
 test("serves uploaded listing images without exposing private runtime data", async () => {
