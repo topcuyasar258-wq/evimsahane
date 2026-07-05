@@ -22,7 +22,7 @@ test("keeps Vercel server bundle assets explicit and runtime data private", () =
   const includeFiles = vercelConfig.functions["server.js"].includeFiles;
   const vercelIgnore = fs.readFileSync(".vercelignore", "utf8");
 
-  for (const publicPath of ["assets/**", "*/code.html", "data/{brand,properties}.json"]) {
+  for (const publicPath of ["assets/**", "*/code.html", "projeler/*.html", "data/{brand,properties,projects}.json"]) {
     assert.match(includeFiles, new RegExp(publicPath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), `${publicPath} should be included in Vercel bundle`);
   }
 
@@ -32,7 +32,7 @@ test("keeps Vercel server bundle assets explicit and runtime data private", () =
 });
 
 test("renders public pages without runtime Tailwind CDN render blockers", async () => {
-  for (const target of ["/evimiz-sahane", "/projelerimiz"]) {
+  for (const target of ["/evimiz-sahane", "/projelerimiz", "/degerleme", "/kentsel-donusum"]) {
     const response = await dispatch("GET", target);
     assert.equal(response.statusCode, 200);
     assert.doesNotMatch(response.body, /cdn\.tailwindcss\.com/);
@@ -135,6 +135,16 @@ test("renders projects as a separate construction portfolio", async () => {
   assert.match(response.body, /\/assets\/projects\//);
 });
 
+test("renders urban transformation content with FAQ schema and project links", async () => {
+  const response = await dispatch("GET", "/kentsel-donusum");
+  assert.equal(response.statusCode, 200);
+  assert.match(response.body, /Riskli Yapıdan Güvenli Yaşama/);
+  assert.match(response.body, /Riskli Yapı Tespiti/);
+  assert.match(response.body, /FAQPage/);
+  assert.match(response.body, /salt çoğunluğu \(P\+1\)/);
+  assert.match(response.body, /href="\/projeler\/selimpasa-64-daire\.html"/);
+});
+
 test("exposes crawl directives and sitemap", async () => {
   const robots = await dispatch("GET", "/robots.txt");
   assert.equal(robots.statusCode, 200);
@@ -145,55 +155,91 @@ test("exposes crawl directives and sitemap", async () => {
   assert.equal(sitemap.statusCode, 200);
   assert.match(sitemap.body, /<loc>http:\/\/localhost:3000\/evimiz-sahane<\/loc>/);
   assert.match(sitemap.body, /<loc>http:\/\/localhost:3000\/projelerimiz<\/loc>/);
-  assert.doesNotMatch(sitemap.body, /\/ilanlar/);
+  assert.match(sitemap.body, /<loc>http:\/\/localhost:3000\/degerleme<\/loc>/);
+  assert.match(sitemap.body, /<loc>http:\/\/localhost:3000\/projeler\/selimpasa-64-daire\.html<\/loc>/);
+  assert.doesNotMatch(sitemap.body, /\/ilanlar|\/ilan\//);
 });
 
 test("renders homepage with primary heading and SEO metadata", async () => {
   const response = await dispatch("GET", "/evimiz-sahane");
   assert.equal(response.statusCode, 200);
   assert.match(response.body, /<meta name="description"/);
-  assert.match(response.body, /<link rel="canonical" href="http:\/\/localhost:3000\/evimiz-sahane"\/>/);
+  assert.match(response.body, /<link rel="canonical" href="http:\/\/localhost:3000\/evimiz-sahane"/);
+  assert.doesNotMatch(response.body, /evimizsahane\.com\//);
   assert.match(response.body, /<h1 class="brand-hero__title/);
   assert.match(response.body, /Kentsel Dönüşüm Süreci/);
   assert.match(response.body, /Teknik disiplin/);
 });
 
-test("uses absolute canonical URLs for public listing pages", async () => {
+test("uses absolute canonical URLs for the projects portfolio page", async () => {
   const response = await dispatch("GET", "/projelerimiz");
   assert.equal(response.statusCode, 200);
   assert.match(response.body, /<link rel="canonical" href="http:\/\/localhost:3000\/projelerimiz">/);
 });
 
-test("uses an absolute og:image URL on the projects portfolio page", async () => {
-  const response = await dispatch("GET", "/projelerimiz");
+test("keeps production canonicals on the .com.tr domain", async () => {
+  const response = await dispatch("GET", "/projelerimiz", null, { host: "www.evimizsahane.com" });
   assert.equal(response.statusCode, 200);
-  assert.match(response.body, /<meta property="og:image" content="http:\/\/localhost:3000\/assets\/projects\//);
+  assert.match(response.body, /<link rel="canonical" href="https:\/\/www\.evimizsahane\.com\.tr\/projelerimiz">/);
+  assert.match(response.body, /<meta property="og:url" content="https:\/\/www\.evimizsahane\.com\.tr\/projelerimiz">/);
 });
 
-test("redirects legacy template slugs to clean URLs", async () => {
-  const cases = [
+test("redirects template residue URLs to clean public routes", async () => {
+  const redirects = [
     ["/hakkimizda_elite_estates", "/hakkimizda"],
     ["/i_leti_im_ve_randevu_elite_estates", "/iletisim"],
-    ["/evimi_sat_kirala_cretsiz_de_erleme", "/degerleme"]
+    ["/evimi_sat_kirala_cretsiz_de_erleme", "/degerleme"],
+    ["/kentsel_donusum", "/kentsel-donusum"]
   ];
-  for (const [legacyPath, cleanPath] of cases) {
-    const response = await dispatch("GET", legacyPath);
+
+  for (const [from, to] of redirects) {
+    const response = await dispatch("GET", from);
     assert.equal(response.statusCode, 301);
-    assert.equal(response.headers.location, cleanPath);
+    assert.equal(response.headers.location, to);
   }
 });
 
-test("serves the clean corporate, contact and valuation URLs with self-hosted canonical tags", async () => {
-  const cases = [
-    ["/hakkimizda", "/hakkimizda"],
-    ["/iletisim", "/iletisim"],
-    ["/degerleme", "/degerleme"]
-  ];
-  for (const [path, canonicalPath] of cases) {
-    const response = await dispatch("GET", path);
+test("renders clean static routes with clean canonical URLs", async () => {
+  const response = await dispatch("GET", "/hakkimizda");
+  assert.equal(response.statusCode, 200);
+  assert.match(response.body, /<link rel="canonical" href="http:\/\/localhost:3000\/hakkimizda"/);
+  assert.doesNotMatch(response.body, /elite_estates|i_leti_im|kentsel_donusum/);
+});
+
+test("uses absolute project OG images and consistent project locations", async () => {
+  const response = await dispatch("GET", "/projelerimiz");
+  assert.equal(response.statusCode, 200);
+  assert.match(response.body, /<meta property="og:image" content="http:\/\/localhost:3000\/assets\/projects\/selimpasa-64-daire\/01\.webp">/);
+  assert.match(response.body, /Selimpaşa 64 Daire/);
+  assert.match(response.body, /Selimpaşa \/ İstanbul/);
+  assert.match(response.body, /href="\/projeler\/selimpasa-64-daire\.html"/);
+});
+
+test("renders static project detail pages with SEO and schema", async () => {
+  const response = await dispatch("GET", "/projeler/selimpasa-64-daire.html");
+  assert.equal(response.statusCode, 200);
+  assert.match(response.body, /Selimpaşa 64 Daire/);
+  assert.match(response.body, /<link rel="canonical" href="http:\/\/localhost:3000\/projeler\/selimpasa-64-daire\.html"/);
+  assert.match(response.body, /<meta property="og:image" content="http:\/\/localhost:3000\/assets\/projects\/selimpasa-64-daire\/01\.webp"\/?>/);
+  assert.match(response.body, /CreativeWork/);
+  assert.match(response.body, /data-lightbox-trigger/);
+  assert.match(response.body, /Öncesi görseli eklenecek/);
+});
+
+test("footer exposes legal and social trust links", async () => {
+  const response = await dispatch("GET", "/evimiz-sahane");
+  assert.equal(response.statusCode, 200);
+  assert.match(response.body, /href="\/kvkk"/);
+  assert.match(response.body, /href="\/cerez-politikasi"/);
+  assert.match(response.body, /Instagram|LinkedIn|Facebook/);
+});
+
+test("renders legal trust pages from footer links", async () => {
+  for (const target of ["/kvkk", "/cerez-politikasi"]) {
+    const response = await dispatch("GET", target);
     assert.equal(response.statusCode, 200);
-    assert.doesNotMatch(response.body, /https:\/\/www\.evimizsahane\.com/);
-    assert.match(response.body, new RegExp(`<link rel="canonical" href="http://localhost:3000${canonicalPath}"/>`));
+    assert.match(response.body, /Evimiz Şahane/);
+    assert.match(response.body, /<link rel="canonical"/);
   }
 });
 

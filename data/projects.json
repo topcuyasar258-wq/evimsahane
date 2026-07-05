@@ -1,0 +1,500 @@
+[
+  {
+    "slug": "selimpasa-64-daire",
+    "ad": "Selimpaşa 64 Daire",
+    "ilce": "Selimpaşa",
+    "durum": "[Durum bilgisi eklenecek]",
+    "yil": "[Teslim yılı eklenecek]",
+    "m2": "[m² bilgisi eklenecek]",
+    "daire_tipleri": [
+      "[Daire tipi bilgisi eklenecek]"
+    ],
+    "aciklama": "Selimpaşa 64 Daire projesi için kapsam, metrekare, teslim yılı ve teknik bilgiler eklenecek. Proje görsel arşivi yayına hazırlanmıştır.",
+    "kapak_gorsel": "/assets/projects/selimpasa-64-daire/01.webp",
+    "kapak_boyut": {
+      "width": 1600,
+      "height": 900
+    },
+    "galeri": [
+      {
+        "src": "/assets/projects/selimpasa-64-daire/01.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa 64 Daire proje görseli 1"
+      },
+      {
+        "src": "/assets/projects/selimpasa-64-daire/02.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa 64 Daire proje görseli 2"
+      },
+      {
+        "src": "/assets/projects/selimpasa-64-daire/03.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa 64 Daire proje görseli 3"
+      },
+      {
+        "src": "/assets/projects/selimpasa-64-daire/04.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa 64 Daire proje görseli 4"
+      },
+      {
+        "src": "/assets/projects/selimpasa-64-daire/05.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa 64 Daire proje görseli 5"
+      },
+      {
+        "src": "/assets/projects/selimpasa-64-daire/06.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa 64 Daire proje görseli 6"
+      },
+      {
+        "src": "/assets/projects/selimpasa-64-daire/07.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa 64 Daire proje görseli 7"
+      },
+      {
+        "src": "/assets/projects/selimpasa-64-daire/08.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa 64 Daire proje görseli 8"
+      },
+      {
+        "src": "/assets/projects/selimpasa-64-daire/09.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa 64 Daire proje görseli 9"
+      },
+      {
+        "src": "/assets/projects/selimpasa-64-daire/10.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa 64 Daire proje görseli 10"
+      },
+      {
+        "src": "/assets/projects/selimpasa-64-daire/11.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa 64 Daire proje görseli 11"
+      }
+    ],
+    "once_gorsel": null,
+    "sonra_gorsel": "/assets/projects/selimpasa-64-daire/01.webp",
+    "sonra_gorsel_boyut": {
+      "width": 1600,
+      "height": 900
+    },
+    "konum": {
+      "lat": null,
+      "lng": null
+    },
+    "ozet_meta_aciklama": "Selimpaşa 64 Daire projesi görselleri ve proje detayları. Evimiz Şahane proje portföyünü inceleyin."
+  },
+  {
+    "slug": "selimpasa-villa-projesi",
+    "ad": "Selimpaşa Villa Projesi",
+    "ilce": "Selimpaşa",
+    "durum": "[Durum bilgisi eklenecek]",
+    "yil": "[Teslim yılı eklenecek]",
+    "m2": "[m² bilgisi eklenecek]",
+    "daire_tipleri": [
+      "[Villa tipi bilgisi eklenecek]"
+    ],
+    "aciklama": "Selimpaşa Villa Projesi için konut tipi, metrekare, teslim yılı ve teknik kapsam bilgileri eklenecek. Proje görsel arşivi yayına hazırlanmıştır.",
+    "kapak_gorsel": "/assets/projects/selimpasa-villa-projesi/01.webp",
+    "kapak_boyut": {
+      "width": 1600,
+      "height": 900
+    },
+    "galeri": [
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/01.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 1"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/02.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 2"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/03.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 3"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/04.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 4"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/05.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 5"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/06.webp",
+        "width": 886,
+        "height": 1080,
+        "alt": "Selimpaşa Villa Projesi proje görseli 6"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/07.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 7"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/08.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 8"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/09.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 9"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/10.webp",
+        "width": 960,
+        "height": 1280,
+        "alt": "Selimpaşa Villa Projesi proje görseli 10"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/11.webp",
+        "width": 960,
+        "height": 1280,
+        "alt": "Selimpaşa Villa Projesi proje görseli 11"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/12.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 12"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/13.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 13"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/14.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 14"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/15.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 15"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/16.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 16"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/17.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 17"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/18.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 18"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/19.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 19"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/20.webp",
+        "width": 1600,
+        "height": 826,
+        "alt": "Selimpaşa Villa Projesi proje görseli 20"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/21.webp",
+        "width": 1600,
+        "height": 922,
+        "alt": "Selimpaşa Villa Projesi proje görseli 21"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/22.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 22"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/23.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 23"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/24.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 24"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/25.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 25"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/26.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 26"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/27.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 27"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/28.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 28"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/29.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 29"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/30.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 30"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/31.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 31"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/32.webp",
+        "width": 1600,
+        "height": 744,
+        "alt": "Selimpaşa Villa Projesi proje görseli 32"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/33.webp",
+        "width": 788,
+        "height": 1400,
+        "alt": "Selimpaşa Villa Projesi proje görseli 33"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/34.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 34"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/35.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Selimpaşa Villa Projesi proje görseli 35"
+      },
+      {
+        "src": "/assets/projects/selimpasa-villa-projesi/36.webp",
+        "width": 1050,
+        "height": 1400,
+        "alt": "Selimpaşa Villa Projesi proje görseli 36"
+      }
+    ],
+    "once_gorsel": null,
+    "sonra_gorsel": "/assets/projects/selimpasa-villa-projesi/01.webp",
+    "sonra_gorsel_boyut": {
+      "width": 1600,
+      "height": 900
+    },
+    "konum": {
+      "lat": null,
+      "lng": null
+    },
+    "ozet_meta_aciklama": "Selimpaşa Villa Projesi görselleri ve proje detayları. Evimiz Şahane proje portföyünü inceleyin."
+  },
+  {
+    "slug": "silivri-ortakoy-villa",
+    "ad": "Silivri Ortaköy Villa",
+    "ilce": "Silivri Ortaköy",
+    "durum": "[Durum bilgisi eklenecek]",
+    "yil": "[Teslim yılı eklenecek]",
+    "m2": "[m² bilgisi eklenecek]",
+    "daire_tipleri": [
+      "[Villa tipi bilgisi eklenecek]"
+    ],
+    "aciklama": "Silivri Ortaköy Villa projesi için konut tipi, metrekare, teslim yılı ve teknik kapsam bilgileri eklenecek. Proje görsel arşivi yayına hazırlanmıştır.",
+    "kapak_gorsel": "/assets/projects/silivri-ortakoy-villa/01.webp",
+    "kapak_boyut": {
+      "width": 1600,
+      "height": 900
+    },
+    "galeri": [
+      {
+        "src": "/assets/projects/silivri-ortakoy-villa/01.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Silivri Ortaköy Villa proje görseli 1"
+      },
+      {
+        "src": "/assets/projects/silivri-ortakoy-villa/02.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Silivri Ortaköy Villa proje görseli 2"
+      },
+      {
+        "src": "/assets/projects/silivri-ortakoy-villa/03.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Silivri Ortaköy Villa proje görseli 3"
+      },
+      {
+        "src": "/assets/projects/silivri-ortakoy-villa/04.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Silivri Ortaköy Villa proje görseli 4"
+      },
+      {
+        "src": "/assets/projects/silivri-ortakoy-villa/05.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Silivri Ortaköy Villa proje görseli 5"
+      },
+      {
+        "src": "/assets/projects/silivri-ortakoy-villa/06.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Silivri Ortaköy Villa proje görseli 6"
+      },
+      {
+        "src": "/assets/projects/silivri-ortakoy-villa/07.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Silivri Ortaköy Villa proje görseli 7"
+      },
+      {
+        "src": "/assets/projects/silivri-ortakoy-villa/08.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Silivri Ortaköy Villa proje görseli 8"
+      },
+      {
+        "src": "/assets/projects/silivri-ortakoy-villa/09.webp",
+        "width": 905,
+        "height": 1400,
+        "alt": "Silivri Ortaköy Villa proje görseli 9"
+      },
+      {
+        "src": "/assets/projects/silivri-ortakoy-villa/10.webp",
+        "width": 886,
+        "height": 1400,
+        "alt": "Silivri Ortaköy Villa proje görseli 10"
+      },
+      {
+        "src": "/assets/projects/silivri-ortakoy-villa/11.webp",
+        "width": 1090,
+        "height": 1400,
+        "alt": "Silivri Ortaköy Villa proje görseli 11"
+      },
+      {
+        "src": "/assets/projects/silivri-ortakoy-villa/12.webp",
+        "width": 696,
+        "height": 1400,
+        "alt": "Silivri Ortaköy Villa proje görseli 12"
+      },
+      {
+        "src": "/assets/projects/silivri-ortakoy-villa/13.webp",
+        "width": 1259,
+        "height": 1400,
+        "alt": "Silivri Ortaköy Villa proje görseli 13"
+      },
+      {
+        "src": "/assets/projects/silivri-ortakoy-villa/14.webp",
+        "width": 757,
+        "height": 1400,
+        "alt": "Silivri Ortaköy Villa proje görseli 14"
+      },
+      {
+        "src": "/assets/projects/silivri-ortakoy-villa/15.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Silivri Ortaköy Villa proje görseli 15"
+      },
+      {
+        "src": "/assets/projects/silivri-ortakoy-villa/16.webp",
+        "width": 861,
+        "height": 1400,
+        "alt": "Silivri Ortaköy Villa proje görseli 16"
+      },
+      {
+        "src": "/assets/projects/silivri-ortakoy-villa/17.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Silivri Ortaköy Villa proje görseli 17"
+      },
+      {
+        "src": "/assets/projects/silivri-ortakoy-villa/18.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Silivri Ortaköy Villa proje görseli 18"
+      },
+      {
+        "src": "/assets/projects/silivri-ortakoy-villa/19.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Silivri Ortaköy Villa proje görseli 19"
+      },
+      {
+        "src": "/assets/projects/silivri-ortakoy-villa/20.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Silivri Ortaköy Villa proje görseli 20"
+      },
+      {
+        "src": "/assets/projects/silivri-ortakoy-villa/21.webp",
+        "width": 1600,
+        "height": 900,
+        "alt": "Silivri Ortaköy Villa proje görseli 21"
+      }
+    ],
+    "once_gorsel": null,
+    "sonra_gorsel": "/assets/projects/silivri-ortakoy-villa/01.webp",
+    "sonra_gorsel_boyut": {
+      "width": 1600,
+      "height": 900
+    },
+    "konum": {
+      "lat": null,
+      "lng": null
+    },
+    "ozet_meta_aciklama": "Silivri Ortaköy Villa projesi görselleri ve proje detayları. Evimiz Şahane proje portföyünü inceleyin."
+  }
+]

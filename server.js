@@ -9,6 +9,7 @@ const rootDir = __dirname;
 const dataDir = path.join(rootDir, "data");
 const uploadDir = path.join(rootDir, "uploads", "properties");
 const port = Number.parseInt(process.env.PORT || "3000", 10);
+const productionOrigin = (process.env.PUBLIC_SITE_ORIGIN || "https://www.evimizsahane.com.tr").replace(/\/+$/, "");
 const maxJsonBodyBytes = 1024 * 64;
 const maxUploadBytes = 1024 * 1024 * 110;
 const maxImageBytes = 1024 * 1024 * 5;
@@ -21,7 +22,8 @@ const sessions = new Map();
 const sessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(32).toString("hex");
 const publicDataFiles = {
   "brand.json": path.join(rootDir, "data", "brand.json"),
-  "properties.json": path.join(rootDir, "data", "properties.json")
+  "properties.json": path.join(rootDir, "data", "properties.json"),
+  "projects.json": path.join(rootDir, "data", "projects.json")
 };
 const mutableDataFileNames = new Set(["admin-users.json", "submissions.json"]);
 
@@ -47,13 +49,13 @@ const imageTypes = {
   "image/webp": ".webp"
 };
 const privateStaticRoots = new Set([".git", ".vercel", "data", "node_modules", "uploads"]);
-// Legacy template pages were copied with hardcoded absolute URLs pointing at this
-// (unrelated, different) domain. Static HTML is rewritten at serve time so canonical/
-// og tags always point at the domain the site is actually being served from.
-const templateSourceOrigin = "https://www.evimizsahane.com";
+const templateSourceOrigins = [
+  "https://www.evimizsahane.com.tr",
+  "https://www.evimizsahane.com"
+];
 
 function traceVercelRuntimeFiles() {
-  return [
+  const files = [
     fsSync.readFileSync(path.join(rootDir, "ana_sayfa_elite_estates", "code.html")),
     fsSync.readFileSync(path.join(rootDir, "assets", "backend-client.js")),
     fsSync.readFileSync(path.join(rootDir, "assets", "evimiz-logo.png")),
@@ -61,6 +63,7 @@ function traceVercelRuntimeFiles() {
     fsSync.readFileSync(path.join(rootDir, "assets", "evimiz-redesign.js")),
     fsSync.readFileSync(path.join(rootDir, "assets", "evimiz-tailwind.css")),
     fsSync.readFileSync(path.join(rootDir, "data", "brand.json")),
+    fsSync.readFileSync(path.join(rootDir, "data", "projects.json")),
     fsSync.readFileSync(path.join(rootDir, "data", "properties.json")),
     fsSync.readFileSync(path.join(rootDir, "evimi_sat_kirala_cretsiz_de_erleme", "code.html")),
     fsSync.readFileSync(path.join(rootDir, "hakkimizda_elite_estates", "code.html")),
@@ -68,6 +71,13 @@ function traceVercelRuntimeFiles() {
     fsSync.readFileSync(path.join(rootDir, "kentsel_donusum", "code.html")),
     fsSync.readFileSync(path.join(rootDir, "portf_y_ve_i_lanlar_elite_estates", "code.html"))
   ];
+  const projectDir = path.join(rootDir, "projeler");
+  if (fsSync.existsSync(projectDir)) {
+    for (const fileName of fsSync.readdirSync(projectDir)) {
+      if (fileName.endsWith(".html")) files.push(fsSync.readFileSync(path.join(projectDir, fileName)));
+    }
+  }
+  return files;
 }
 
 if (process.env.EVIMSAHANE_TRACE_RUNTIME_FILES === "1") {
@@ -85,11 +95,26 @@ function errorEnvelope(message, details) {
 function siteOrigin(req) {
   const proto = String(req.headers["x-forwarded-proto"] || "http").split(",")[0].trim();
   const host = String(req.headers["x-forwarded-host"] || req.headers.host || "localhost:3000").split(",")[0].trim();
+  if (!/^localhost(?::\d+)?$|^127\.0\.0\.1(?::\d+)?$|^\[::1\](?::\d+)?$/.test(host)) {
+    return productionOrigin;
+  }
   return `${proto}://${host}`;
 }
 
 function absoluteUrl(req, pathname) {
   return new URL(pathname, siteOrigin(req)).toString();
+}
+
+function absolutePublicUrl(req, value) {
+  if (/^https?:\/\//i.test(String(value || ""))) return value;
+  return absoluteUrl(req, value || "/");
+}
+
+function rewriteStaticHtmlOrigins(body, req) {
+  return templateSourceOrigins.reduce(
+    (html, origin) => html.replaceAll(origin, siteOrigin(req)),
+    body
+  );
 }
 
 function escapeXml(value) {
@@ -284,9 +309,29 @@ function displayType(value) {
   return labels[value] || value || "-";
 }
 
+function projectStatusLabel(value) {
+  const normalized = String(value || "").toLocaleLowerCase("tr-TR");
+  const labels = {
+    "tamamlandı": "Tamamlandı",
+    tamamlandi: "Tamamlandı",
+    devam: "Devam Ediyor",
+    planlama: "Planlama"
+  };
+  return labels[normalized] || value || "[Durum bilgisi eklenecek]";
+}
+
+function projectDetailHref(project) {
+  return `/projeler/${encodeURIComponent(project.slug)}.html`;
+}
+
 function isProjectPortfolioItem(property) {
   const coverImage = String(property.coverImage || "");
   return Boolean(property.featured) && coverImage.startsWith("/assets/projects/");
+}
+
+function isPublicListing(property) {
+  const coverImage = String(property.coverImage || "");
+  return property.status === "active" && coverImage.startsWith("/uploads/properties/");
 }
 
 function priceText(property) {
@@ -350,6 +395,10 @@ function normalizeProperty(raw) {
 async function readProperties() {
   const properties = await readJson("properties.json", []);
   return properties.map(normalizeProperty);
+}
+
+async function readProjects() {
+  return readJson("projects.json", []);
 }
 
 async function writeProperties(properties) {
@@ -687,6 +736,12 @@ async function handleApi(req, res, url) {
     return;
   }
 
+  if (req.method === "GET" && url.pathname === "/api/projects") {
+    const projects = await readProjects();
+    sendJson(res, 200, envelope(projects, { total: projects.length }));
+    return;
+  }
+
   if (req.method === "POST" && url.pathname === "/api/appointments") {
     const lead = validateLead(await readBody(req), ["name", "phone"]);
     sendJson(res, 201, envelope(await appendSubmission("appointments", lead)));
@@ -725,14 +780,20 @@ async function renderRobots(req, res) {
 }
 
 async function renderSitemap(req, res) {
-  const urls = [
+  const staticUrls = [
     "/evimiz-sahane",
     "/projelerimiz",
     "/degerleme",
     "/kentsel-donusum",
     "/hakkimizda",
-    "/iletisim"
+    "/iletisim",
+    "/kvkk",
+    "/cerez-politikasi"
   ];
+  const projectUrls = (await readProjects())
+    .filter((project) => project.slug)
+    .map(projectDetailHref);
+  const urls = [...staticUrls, ...projectUrls];
   const now = new Date().toISOString().slice(0, 10);
   const body = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -756,14 +817,14 @@ function baseHead(title, description = "Evimiz Şahane güncel emlak ilanları",
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@200..700,0..1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@200..700,0..1&display=block" rel="stylesheet">
 <link rel="stylesheet" href="/assets/evimiz-tailwind.css?v=20260704-4">
 <link rel="stylesheet" href="/assets/evimiz-redesign.css?v=20260704-4">
 <script src="/assets/backend-client.js?v=20260704-4" defer></script>
 <script src="/assets/evimiz-redesign.js?v=20260704-4" defer></script>
 <style>
 body{font-family:"Instrument Sans",Inter,sans-serif;background:#fff;color:#151515}
-.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;line-height:1}
+.material-symbols-outlined{display:inline-block;width:1em;overflow:hidden;font-family:"Material Symbols Outlined";font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;line-height:1;text-transform:none;white-space:nowrap}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;border-radius:.5rem;padding:.78rem 1rem;font-weight:700;transition:.15s ease}
 .btn:active{transform:scale(.98)}
 .btn-primary{background:#000;color:#fff}
@@ -789,7 +850,7 @@ function siteHeader(active = "projeler") {
 <div class="site-drawer__top"><a class="brand-lockup" href="/evimiz-sahane"><img src="/assets/logo-evimiz-sahane.svg" alt="Evimiz Şahane"></a><button class="icon-button material-symbols-outlined" type="button" data-site-menu-close aria-label="Menüyü kapat">close</button></div>
 <nav>
 <a href="/hakkimizda" data-nav-link><span class="material-symbols-outlined">domain</span>Kurumsal</a>
-<a href="/kentsel_donusum" data-nav-link><span class="material-symbols-outlined">apartment</span>Kentsel Dönüşüm</a>
+<a href="/kentsel-donusum" data-nav-link><span class="material-symbols-outlined">apartment</span>Kentsel Dönüşüm</a>
 <a href="/projelerimiz" data-nav-link><span class="material-symbols-outlined">view_in_ar</span>Projelerimiz</a>
 <a href="/evimiz-sahane#teknik-surec" data-scroll-target="#teknik-surec"><span class="material-symbols-outlined">architecture</span>Teknik Süreç</a>
 <a href="/iletisim" data-nav-link><span class="material-symbols-outlined">mail</span>İletişim</a>
@@ -800,13 +861,49 @@ function siteHeader(active = "projeler") {
 <a class="brand-lockup" href="/evimiz-sahane" aria-label="Evimiz Şahane ana sayfa"><img src="/assets/logo-evimiz-sahane.svg" alt="Evimiz Şahane"></a>
 <nav class="site-nav" aria-label="Ana menü">
 <a href="/hakkimizda" data-nav-link${current("kurumsal")}>Kurumsal</a>
-<a href="/kentsel_donusum" data-nav-link${current("kentsel")}>Kentsel Dönüşüm</a>
+<a href="/kentsel-donusum" data-nav-link${current("kentsel")}>Kentsel Dönüşüm</a>
 <a href="/projelerimiz" data-nav-link${current("projeler")}>Projelerimiz</a>
 <a href="/evimiz-sahane#teknik-surec" data-scroll-target="#teknik-surec">Teknik Süreç</a>
 <a href="/iletisim" data-nav-link${current("iletisim")}>İletişim</a>
 </nav>
 <div class="site-actions"><a class="button" href="/iletisim">Proje Görüşmesi Al <span class="material-symbols-outlined">arrow_forward</span></a><button class="icon-button mobile-menu-button material-symbols-outlined" type="button" data-site-menu-open aria-label="Menüyü aç">menu</button></div>
 </header>`;
+}
+
+function siteFooter() {
+  return `<footer class="site-footer">
+<div class="site-footer__brand">
+<a class="brand-lockup" href="/evimiz-sahane"><img src="/assets/logo-evimiz-sahane.svg" alt="Evimiz Şahane"></a>
+<p class="site-footer__summary">Evimiz Şahane; kentsel dönüşüm, mimari proje geliştirme ve uygulama koordinasyonunu kurumsal inşaat disipliniyle yürütür.</p>
+</div>
+<nav class="footer-nav" aria-label="Alt menü">
+<a href="/hakkimizda">Kurumsal</a>
+<a href="/kentsel-donusum">Kentsel Dönüşüm</a>
+<a href="/projelerimiz">Projelerimiz</a>
+<a href="/iletisim">İletişim</a>
+<a href="/kvkk">KVKK</a>
+<a href="/cerez-politikasi">Çerez Politikası</a>
+</nav>
+<div class="footer-contact">
+<a href="tel:+902129842633">0 (212) 984 26 33</a>
+<a href="mailto:info@evimizsahane.com">info@evimizsahane.com</a>
+<a href="https://wa.me/902129842633">WhatsApp</a>
+<span>Avcılar Merkez Mah. Ahmet Taner Kışlalı Cad. No: 23 İç Kapı No: 3 Avcılar/İstanbul</span>
+</div>
+<nav class="footer-social" aria-label="Sosyal medya">
+<a href="https://www.instagram.com/evimizsahane" rel="noopener noreferrer">Instagram</a>
+<a href="https://www.linkedin.com/company/evimiz-sahane" rel="noopener noreferrer">LinkedIn</a>
+<a href="https://www.facebook.com/evimizsahane" rel="noopener noreferrer">Facebook</a>
+</nav>
+<div class="footer-legal">
+<a href="/kvkk">KVKK</a>
+<a href="/gizlilik-politikasi">Gizlilik Politikası</a>
+<a href="/cerez-politikasi">Çerez Politikası</a>
+<small>© 2026 Evimiz Şahane İnşaat ve Kentsel Dönüşüm.</small>
+<a class="back-to-top" href="#top">Yukarı çık</a>
+</div>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":["Organization","LocalBusiness"],"name":"Evimiz Şahane","url":"https://www.evimizsahane.com.tr","logo":"https://www.evimizsahane.com.tr/assets/logo-evimiz-sahane.svg","telephone":"+902129842633","email":"info@evimizsahane.com","address":{"@type":"PostalAddress","streetAddress":"Avcılar Merkez Mah. Ahmet Taner Kışlalı Cad. No: 23 İç Kapı No: 3","addressLocality":"Avcılar","addressRegion":"İstanbul","addressCountry":"TR"},"sameAs":["https://www.instagram.com/evimizsahane","https://www.linkedin.com/company/evimiz-sahane","https://www.facebook.com/evimizsahane"]}</script>
+</footer>`;
 }
 
 function adminNav() {
@@ -1079,76 +1176,64 @@ async function handleAdmin(req, res, url) {
   sendHtml(res, 404, `${baseHead("Admin sayfası bulunamadı")}<body>Admin sayfası bulunamadı.</body></html>`);
 }
 
+function filterPublicProperties(properties, url) {
+  const listingType = cleanText(url.searchParams.get("listingType") || "");
+  const propertyType = cleanText(url.searchParams.get("propertyType") || "");
+  const district = cleanText(url.searchParams.get("district") || "").toLocaleLowerCase("tr-TR");
+  const roomCount = cleanText(url.searchParams.get("roomCount") || "");
+  const minPrice = Number(cleanText(url.searchParams.get("minPrice") || "").replace(/\D/g, ""));
+  const maxPrice = Number(cleanText(url.searchParams.get("maxPrice") || "").replace(/\D/g, ""));
+  return properties.filter((property) => {
+    const statusOk = isPublicListing(property);
+    const listingOk = !listingType || property.listingType === listingType;
+    const typeOk = !propertyType || slugify(property.propertyType) === propertyType || property.propertyType === propertyType;
+    const districtOk = !district || property.district.toLocaleLowerCase("tr-TR").includes(district);
+    const roomOk = !roomCount || property.roomCount === roomCount;
+    const priceNumber = Number(String(property.price).replace(/\D/g, ""));
+    const minOk = !minPrice || priceNumber >= minPrice;
+    const maxOk = !maxPrice || priceNumber <= maxPrice;
+    return statusOk && listingOk && typeOk && districtOk && roomOk && minOk && maxOk;
+  });
+}
+
 async function renderProjectsPortfolio(req, res) {
-  const projects = (await readProperties())
-    .filter(isProjectPortfolioItem)
-    .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+  const projects = await readProjects();
+  const firstProject = projects[0];
+  const totalImages = projects.reduce((sum, project) => sum + (Array.isArray(project.galeri) ? project.galeri.length : 0), 0);
   const projectStats = [
-    ["3", "seçilmiş proje"],
-    ["28.000 m²", "tasarım ve uygulama ölçeği"],
-    ["6 aşama", "kontrollü teslim süreci"]
+    [String(projects.length), "yayındaki proje"],
+    [String(totalImages), "optimize WebP görsel"],
+    ["3", "bölge odaklı proje grubu"]
   ];
   const cards = projects.map((project, index) => {
-    const statusLabels = ["Tamamlandı", "Devam Ediyor", "Planlama Aşamasında"];
-    const scopes = [
-      "Kentsel dönüşüm odaklı modern konut yaklaşımı, güçlü cephe dili ve aile yaşamına uygun plan kurgusu.",
-      "Premium malzeme dili, kontrollü mahremiyet, peyzaj ve geniş cam yüzeylerle villa yaşamı.",
-      "Bahçe kullanımı, sakin yerleşim dokusu ve çevre kalitesiyle uzun vadeli yaşam değeri."
-    ];
-    const images = project.images.slice(0, 3);
-    return `<article class="portfolio-case">
+    const detailHref = projectDetailHref(project);
+    const images = Array.isArray(project.galeri) ? project.galeri.slice(0, 3) : [];
+    return `<a class="portfolio-case" href="${escapeHtml(detailHref)}">
 <div class="portfolio-case__media">
-<img src="${escapeHtml(project.coverImage)}" alt="${escapeHtml(project.title)}">
-${images.length > 1 ? `<div class="portfolio-case__thumbs">${images.slice(1).map((image) => `<img src="${escapeHtml(image.url)}" alt="${escapeHtml(image.alt || project.title)}">`).join("")}</div>` : ""}
+<img src="${escapeHtml(project.kapak_gorsel)}" alt="${escapeHtml(project.ad)}" width="${escapeHtml(project.kapak_boyut?.width || "")}" height="${escapeHtml(project.kapak_boyut?.height || "")}" loading="${index === 0 ? "eager" : "lazy"}">
+${images.length > 1 ? `<div class="portfolio-case__thumbs">${images.slice(1).map((image) => `<img src="${escapeHtml(image.src)}" alt="${escapeHtml(image.alt || project.ad)}" width="${escapeHtml(image.width || "")}" height="${escapeHtml(image.height || "")}" loading="lazy">`).join("")}</div>` : ""}
 </div>
 <div class="portfolio-case__body">
 <span class="portfolio-index">${String(index + 1).padStart(2, "0")}</span>
-<h2>${escapeHtml(project.title)}</h2>
-<p>${escapeHtml(scopes[index] || project.description)}</p>
+<h2>${escapeHtml(project.ad)}</h2>
+<p>${escapeHtml(project.ozet_meta_aciklama || project.aciklama)}</p>
 <dl>
-<div><dt>Lokasyon</dt><dd>${escapeHtml([project.district, project.city].filter(Boolean).join(" / "))}</dd></div>
-<div><dt>Kapsam</dt><dd>${escapeHtml(displayType(project.propertyType))} geliştirme</dd></div>
-<div><dt>Durum</dt><dd>${escapeHtml(statusLabels[index] || "Portföy")}</dd></div>
+<div><dt>Lokasyon</dt><dd>${escapeHtml([project.ilce, "İstanbul"].filter(Boolean).join(" / "))}</dd></div>
+<div><dt>Kapsam</dt><dd>${escapeHtml((project.daire_tipleri || []).join(", ") || "[Kapsam bilgisi eklenecek]")}</dd></div>
+<div><dt>Durum</dt><dd>${escapeHtml(projectStatusLabel(project.durum))}</dd></div>
 </dl>
 </div>
-</article>`;
+</a>`;
   }).join("");
   const title = "Projelerimiz | Evimiz Şahane";
   const description = "Evimiz Şahane proje portföyü: kentsel dönüşüm, konut, villa ve yaşam alanı geliştirme çalışmalarımız.";
   const canonical = absoluteUrl(req, "/projelerimiz");
-  const projectListJsonLd = JSON.stringify({
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    name: title,
-    description,
-    url: canonical,
-    mainEntity: {
-      "@type": "ItemList",
-      itemListElement: projects.map((project, index) => ({
-        "@type": "ListItem",
-        position: index + 1,
-        item: {
-          "@type": "Place",
-          name: project.title,
-          description: project.description,
-          image: project.coverImage,
-          address: {
-            "@type": "PostalAddress",
-            addressLocality: project.district,
-            addressRegion: project.city,
-            addressCountry: "TR"
-          }
-        }
-      }))
-    }
-  }).replace(/</g, "\\u003c");
   const seoHead = `<link rel="canonical" href="${escapeHtml(canonical)}">
 <meta property="og:title" content="${escapeHtml(title)}">
 <meta property="og:description" content="${escapeHtml(description)}">
 <meta property="og:type" content="website">
 <meta property="og:url" content="${escapeHtml(canonical)}">
-<meta property="og:image" content="${escapeHtml(absoluteUrl(req, projects[0]?.coverImage || "/assets/projects/avcilar-residence-01.jpeg"))}">
-<script type="application/ld+json">${projectListJsonLd}</script>`;
+<meta property="og:image" content="${escapeHtml(absolutePublicUrl(req, firstProject?.kapak_gorsel || "/assets/projects/avcilar-residence-01.jpeg"))}">`;
   sendHtml(res, 200, `${baseHead(title, description, seoHead)}
 <body class="brand-site">${siteHeader("projeler")}
 <main>
@@ -1160,7 +1245,7 @@ ${images.length > 1 ? `<div class="portfolio-case__thumbs">${images.slice(1).map
 <p>Evimiz Şahane projeleri; doğru fizibilite, mimari karakter, mühendislik koordinasyonu ve malik güveniyle büyüyen işlerdir. Burada odağımız metrekare satışı değil, yaptığımız işin ölçeği ve kalitesidir.</p>
 <div class="portfolio-stats">${projectStats.map(([value, label]) => `<div><strong>${escapeHtml(value)}</strong><span>${escapeHtml(label)}</span></div>`).join("")}</div>
 </div>
-<figure><img src="${escapeHtml(projects[0]?.coverImage || "/assets/projects/avcilar-residence-01.jpeg")}" alt="Evimiz Şahane proje portföyü"></figure>
+<figure><img src="${escapeHtml(firstProject?.kapak_gorsel || "/assets/projects/avcilar-residence-01.jpeg")}" alt="Evimiz Şahane proje portföyü" width="${escapeHtml(firstProject?.kapak_boyut?.width || "")}" height="${escapeHtml(firstProject?.kapak_boyut?.height || "")}"></figure>
 </div>
 </section>
 <section class="section">
@@ -1181,7 +1266,45 @@ ${images.length > 1 ? `<div class="portfolio-case__thumbs">${images.slice(1).map
 <div class="contact-band__copy"><h2>Sıradaki projeyi birlikte planlayalım.</h2><p>Arsanız, binanız veya dönüşüm fikriniz için teknik ve ticari yol haritasını birlikte çıkaralım.</p><a class="button button--light" href="/iletisim">Proje Görüşmesi Al</a></div>
 <div class="contact-band__details"><div class="contact-line"><span class="material-symbols-outlined">phone</span><div><strong>Telefon</strong><a href="tel:+902129842633">0 (212) 984 26 33</a></div></div><div class="contact-line"><span class="material-symbols-outlined">location_on</span><div><strong>Merkez</strong><span>Avcılar / İstanbul</span></div></div></div>
 </section>
-</main></body></html>`);
+</main>${siteFooter()}</body></html>`);
+}
+
+function renderPolicyPage(req, res, page) {
+  const isCookies = page === "cookies";
+  const title = isCookies ? "Çerez Politikası | Evimiz Şahane" : "KVKK Aydınlatma Metni | Evimiz Şahane";
+  const description = isCookies
+    ? "Evimiz Şahane web sitesinde kullanılan zorunlu ve analitik çerezlere ilişkin bilgilendirme."
+    : "Evimiz Şahane iletişim ve proje görüşmesi taleplerinde kişisel verilerin işlenmesine ilişkin aydınlatma metni.";
+  const pathname = isCookies ? "/cerez-politikasi" : "/kvkk";
+  const canonical = absoluteUrl(req, pathname);
+  const paragraphs = isCookies
+    ? [
+      "Bu web sitesinde temel site güvenliği, form gönderimi ve performans takibi için zorunlu teknik çerezler kullanılabilir.",
+      "Analitik veya pazarlama amaçlı ek araçlar devreye alınırsa kullanıcı bilgilendirmesi ve tercih yönetimi ayrıca sağlanır.",
+      "Çerez tercihleri ve kişisel veri talepleri için Evimiz Şahane ile iletişim kanallarımızdan ulaşabilirsiniz."
+    ]
+    : [
+      "Evimiz Şahane, iletişim ve proje görüşmesi formları üzerinden ilettiğiniz ad, soyad, telefon, e-posta, konum ve mesaj bilgilerini talebinize dönüş yapabilmek amacıyla işler.",
+      "Kişisel verileriniz yetkisiz kişilerle paylaşılmaz; yasal zorunluluklar ve hizmetin yürütülmesi için gerekli haller dışında üçüncü taraflara aktarılmaz.",
+      "KVKK kapsamındaki bilgi, düzeltme ve silme talepleriniz için info@evimizsahane.com adresinden bizimle iletişime geçebilirsiniz."
+    ];
+  const seoHead = `<link rel="canonical" href="${escapeHtml(canonical)}">
+<meta property="og:title" content="${escapeHtml(title)}">
+<meta property="og:description" content="${escapeHtml(description)}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="${escapeHtml(canonical)}">`;
+  sendHtml(res, 200, `${baseHead(title, description, seoHead)}
+<body class="brand-site">${siteHeader("")}
+<main>
+<section class="page-hero shell">
+<div>
+<p class="page-kicker">${isCookies ? "Çerezler" : "KVKK"}</p>
+<h1>${isCookies ? "Çerez Politikası" : "KVKK Aydınlatma Metni"}</h1>
+${paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")}
+</div>
+<img src="/assets/projects/avcilar-residence-03.jpeg" alt="Evimiz Şahane proje görseli">
+</section>
+</main>${siteFooter()}</body></html>`);
 }
 
 function staticPathParts(urlPathname) {
@@ -1216,16 +1339,6 @@ async function serveStatic(req, res, url) {
     url.pathname = "/ana_sayfa_elite_estates/code.html";
   }
 
-  if (url.pathname === "/portf_y_ve_i_lanlar_elite_estates") {
-    sendRedirect(res, "/projelerimiz", {}, 301);
-    return;
-  }
-
-  if (url.pathname === "/i_lan_detay_elite_estates") {
-    sendRedirect(res, "/projelerimiz", {}, 301);
-    return;
-  }
-
   if (url.pathname === "/hakkimizda_elite_estates") {
     sendRedirect(res, "/hakkimizda", {}, 301);
     return;
@@ -1237,6 +1350,26 @@ async function serveStatic(req, res, url) {
   }
 
   if (url.pathname === "/evimi_sat_kirala_cretsiz_de_erleme") {
+    sendRedirect(res, "/degerleme", {}, 301);
+    return;
+  }
+
+  if (url.pathname === "/kentsel_donusum") {
+    sendRedirect(res, "/kentsel-donusum", {}, 301);
+    return;
+  }
+
+  if (url.pathname === "/portf_y_ve_i_lanlar_elite_estates") {
+    sendRedirect(res, "/projelerimiz", {}, 301);
+    return;
+  }
+
+  if (url.pathname === "/i_lan_detay_elite_estates") {
+    sendRedirect(res, "/projelerimiz", {}, 301);
+    return;
+  }
+
+  if (url.pathname === "/evimi-sat-kirala-ucretsiz-degerleme") {
     sendRedirect(res, "/degerleme", {}, 301);
     return;
   }
@@ -1253,7 +1386,7 @@ async function serveStatic(req, res, url) {
     url.pathname = "/evimi_sat_kirala_cretsiz_de_erleme/code.html";
   }
 
-  if (url.pathname === "/kentsel-donusum" || url.pathname === "/kentsel_donusum") {
+  if (url.pathname === "/kentsel-donusum") {
     url.pathname = "/kentsel_donusum/code.html";
   }
 
@@ -1280,7 +1413,7 @@ async function serveStatic(req, res, url) {
       return;
     }
     const body = ext === ".html"
-      ? (await fs.readFile(resolved, "utf8")).replaceAll(templateSourceOrigin, siteOrigin(req))
+      ? rewriteStaticHtmlOrigins(await fs.readFile(resolved, "utf8"), req)
       : await fs.readFile(resolved);
     res.writeHead(200, {
       "content-type": contentTypes[ext] || "application/octet-stream",
@@ -1316,6 +1449,19 @@ async function requestHandler(req, res) {
     }
     if (req.method === "GET" && (url.pathname === "/projelerimiz" || url.pathname === "/projeler")) {
       await renderProjectsPortfolio(req, res);
+      return;
+    }
+    if (req.method === "GET" && url.pathname === "/kvkk") {
+      renderPolicyPage(req, res, "kvkk");
+      return;
+    }
+    if (req.method === "GET" && url.pathname === "/cerez-politikasi") {
+      renderPolicyPage(req, res, "cookies");
+      return;
+    }
+    const projectCleanMatch = url.pathname.match(/^\/projeler\/([^/.]+)$/);
+    if (req.method === "GET" && projectCleanMatch) {
+      sendRedirect(res, `/projeler/${encodeURIComponent(decodeURIComponent(projectCleanMatch[1]))}.html`);
       return;
     }
     await serveStatic(req, res, url);

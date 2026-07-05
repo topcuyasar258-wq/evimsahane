@@ -6,9 +6,14 @@
   "scripts": {
     "start": "node server.js",
     "create-admin": "node scripts/create-admin.js",
+    "prepare:projects": "node scripts/prepare-project-assets.js && node scripts/build-project-pages.js",
+    "build:projects": "node scripts/build-project-pages.js",
     "test": "node --test"
   },
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.3"
   }
 }
