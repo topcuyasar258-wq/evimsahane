@@ -152,7 +152,7 @@ test("renders homepage with primary heading and SEO metadata", async () => {
   const response = await dispatch("GET", "/evimiz-sahane");
   assert.equal(response.statusCode, 200);
   assert.match(response.body, /<meta name="description"/);
-  assert.match(response.body, /<link rel="canonical" href="https:\/\/www\.evimizsahane\.com\/"/);
+  assert.match(response.body, /<link rel="canonical" href="http:\/\/localhost:3000\/evimiz-sahane"\/>/);
   assert.match(response.body, /<h1 class="brand-hero__title/);
   assert.match(response.body, /Kentsel Dönüşüm Süreci/);
   assert.match(response.body, /Teknik disiplin/);
@@ -162,6 +162,39 @@ test("uses absolute canonical URLs for public listing pages", async () => {
   const response = await dispatch("GET", "/projelerimiz");
   assert.equal(response.statusCode, 200);
   assert.match(response.body, /<link rel="canonical" href="http:\/\/localhost:3000\/projelerimiz">/);
+});
+
+test("uses an absolute og:image URL on the projects portfolio page", async () => {
+  const response = await dispatch("GET", "/projelerimiz");
+  assert.equal(response.statusCode, 200);
+  assert.match(response.body, /<meta property="og:image" content="http:\/\/localhost:3000\/assets\/projects\//);
+});
+
+test("redirects legacy template slugs to clean URLs", async () => {
+  const cases = [
+    ["/hakkimizda_elite_estates", "/hakkimizda"],
+    ["/i_leti_im_ve_randevu_elite_estates", "/iletisim"],
+    ["/evimi_sat_kirala_cretsiz_de_erleme", "/degerleme"]
+  ];
+  for (const [legacyPath, cleanPath] of cases) {
+    const response = await dispatch("GET", legacyPath);
+    assert.equal(response.statusCode, 301);
+    assert.equal(response.headers.location, cleanPath);
+  }
+});
+
+test("serves the clean corporate, contact and valuation URLs with self-hosted canonical tags", async () => {
+  const cases = [
+    ["/hakkimizda", "/hakkimizda"],
+    ["/iletisim", "/iletisim"],
+    ["/degerleme", "/degerleme"]
+  ];
+  for (const [path, canonicalPath] of cases) {
+    const response = await dispatch("GET", path);
+    assert.equal(response.statusCode, 200);
+    assert.doesNotMatch(response.body, /https:\/\/www\.evimizsahane\.com/);
+    assert.match(response.body, new RegExp(`<link rel="canonical" href="http://localhost:3000${canonicalPath}"/>`));
+  }
 });
 
 test("serves uploaded listing images without exposing private runtime data", async () => {

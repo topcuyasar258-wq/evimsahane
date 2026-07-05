@@ -47,6 +47,10 @@ const imageTypes = {
   "image/webp": ".webp"
 };
 const privateStaticRoots = new Set([".git", ".vercel", "data", "node_modules", "uploads"]);
+// Legacy template pages were copied with hardcoded absolute URLs pointing at this
+// (unrelated, different) domain. Static HTML is rewritten at serve time so canonical/
+// og tags always point at the domain the site is actually being served from.
+const templateSourceOrigin = "https://www.evimizsahane.com";
 
 function traceVercelRuntimeFiles() {
   return [
@@ -128,8 +132,8 @@ function sendHtml(res, statusCode, body, extraHeaders = {}) {
   res.end(body);
 }
 
-function sendRedirect(res, location, headers = {}) {
-  res.writeHead(302, { location, ...headers });
+function sendRedirect(res, location, headers = {}, statusCode = 302) {
+  res.writeHead(statusCode, { location, ...headers });
   res.end();
 }
 
@@ -724,10 +728,10 @@ async function renderSitemap(req, res) {
   const urls = [
     "/evimiz-sahane",
     "/projelerimiz",
-    "/evimi_sat_kirala_cretsiz_de_erleme",
+    "/degerleme",
     "/kentsel-donusum",
-    "/hakkimizda_elite_estates",
-    "/i_leti_im_ve_randevu_elite_estates"
+    "/hakkimizda",
+    "/iletisim"
   ];
   const now = new Date().toISOString().slice(0, 10);
   const body = `<?xml version="1.0" encoding="UTF-8"?>
@@ -784,22 +788,24 @@ function siteHeader(active = "projeler") {
 <aside class="site-drawer" data-site-drawer aria-label="Mobil menü">
 <div class="site-drawer__top"><a class="brand-lockup" href="/evimiz-sahane"><img src="/assets/logo-evimiz-sahane.svg" alt="Evimiz Şahane"></a><button class="icon-button material-symbols-outlined" type="button" data-site-menu-close aria-label="Menüyü kapat">close</button></div>
 <nav>
-<a href="/hakkimizda_elite_estates" data-nav-link><span class="material-symbols-outlined">domain</span>Kurumsal</a>
+<a href="/hakkimizda" data-nav-link><span class="material-symbols-outlined">domain</span>Kurumsal</a>
 <a href="/kentsel_donusum" data-nav-link><span class="material-symbols-outlined">apartment</span>Kentsel Dönüşüm</a>
 <a href="/projelerimiz" data-nav-link><span class="material-symbols-outlined">view_in_ar</span>Projelerimiz</a>
-<a href="/i_leti_im_ve_randevu_elite_estates" data-nav-link><span class="material-symbols-outlined">mail</span>İletişim</a>
+<a href="/evimiz-sahane#teknik-surec" data-scroll-target="#teknik-surec"><span class="material-symbols-outlined">architecture</span>Teknik Süreç</a>
+<a href="/iletisim" data-nav-link><span class="material-symbols-outlined">mail</span>İletişim</a>
 </nav>
 <div class="site-drawer__actions"><a class="button button--orange" href="tel:+902129842633">Ara</a><a class="button button--whatsapp" href="https://wa.me/902129842633">WhatsApp</a></div>
 </aside>
 <header class="site-header">
 <a class="brand-lockup" href="/evimiz-sahane" aria-label="Evimiz Şahane ana sayfa"><img src="/assets/logo-evimiz-sahane.svg" alt="Evimiz Şahane"></a>
 <nav class="site-nav" aria-label="Ana menü">
-<a href="/hakkimizda_elite_estates" data-nav-link${current("kurumsal")}>Kurumsal</a>
+<a href="/hakkimizda" data-nav-link${current("kurumsal")}>Kurumsal</a>
 <a href="/kentsel_donusum" data-nav-link${current("kentsel")}>Kentsel Dönüşüm</a>
 <a href="/projelerimiz" data-nav-link${current("projeler")}>Projelerimiz</a>
-<a href="/i_leti_im_ve_randevu_elite_estates" data-nav-link${current("iletisim")}>İletişim</a>
+<a href="/evimiz-sahane#teknik-surec" data-scroll-target="#teknik-surec">Teknik Süreç</a>
+<a href="/iletisim" data-nav-link${current("iletisim")}>İletişim</a>
 </nav>
-<div class="site-actions"><a class="button" href="/i_leti_im_ve_randevu_elite_estates">Proje Görüşmesi Al <span class="material-symbols-outlined">arrow_forward</span></a><button class="icon-button mobile-menu-button material-symbols-outlined" type="button" data-site-menu-open aria-label="Menüyü aç">menu</button></div>
+<div class="site-actions"><a class="button" href="/iletisim">Proje Görüşmesi Al <span class="material-symbols-outlined">arrow_forward</span></a><button class="icon-button mobile-menu-button material-symbols-outlined" type="button" data-site-menu-open aria-label="Menüyü aç">menu</button></div>
 </header>`;
 }
 
@@ -1141,7 +1147,7 @@ ${images.length > 1 ? `<div class="portfolio-case__thumbs">${images.slice(1).map
 <meta property="og:description" content="${escapeHtml(description)}">
 <meta property="og:type" content="website">
 <meta property="og:url" content="${escapeHtml(canonical)}">
-<meta property="og:image" content="${escapeHtml(projects[0]?.coverImage || "/assets/projects/avcilar-residence-01.jpeg")}">
+<meta property="og:image" content="${escapeHtml(absoluteUrl(req, projects[0]?.coverImage || "/assets/projects/avcilar-residence-01.jpeg"))}">
 <script type="application/ld+json">${projectListJsonLd}</script>`;
   sendHtml(res, 200, `${baseHead(title, description, seoHead)}
 <body class="brand-site">${siteHeader("projeler")}
@@ -1172,7 +1178,7 @@ ${images.length > 1 ? `<div class="portfolio-case__thumbs">${images.slice(1).map
 </section>
 <section class="contact-band">
 <div class="contact-band__sketch" aria-hidden="true"></div>
-<div class="contact-band__copy"><h2>Sıradaki projeyi birlikte planlayalım.</h2><p>Arsanız, binanız veya dönüşüm fikriniz için teknik ve ticari yol haritasını birlikte çıkaralım.</p><a class="button button--light" href="/i_leti_im_ve_randevu_elite_estates">Proje Görüşmesi Al</a></div>
+<div class="contact-band__copy"><h2>Sıradaki projeyi birlikte planlayalım.</h2><p>Arsanız, binanız veya dönüşüm fikriniz için teknik ve ticari yol haritasını birlikte çıkaralım.</p><a class="button button--light" href="/iletisim">Proje Görüşmesi Al</a></div>
 <div class="contact-band__details"><div class="contact-line"><span class="material-symbols-outlined">phone</span><div><strong>Telefon</strong><a href="tel:+902129842633">0 (212) 984 26 33</a></div></div><div class="contact-line"><span class="material-symbols-outlined">location_on</span><div><strong>Merkez</strong><span>Avcılar / İstanbul</span></div></div></div>
 </section>
 </main></body></html>`);
@@ -1211,13 +1217,40 @@ async function serveStatic(req, res, url) {
   }
 
   if (url.pathname === "/portf_y_ve_i_lanlar_elite_estates") {
-    sendRedirect(res, "/projelerimiz");
+    sendRedirect(res, "/projelerimiz", {}, 301);
     return;
   }
 
   if (url.pathname === "/i_lan_detay_elite_estates") {
-    sendRedirect(res, "/projelerimiz");
+    sendRedirect(res, "/projelerimiz", {}, 301);
     return;
+  }
+
+  if (url.pathname === "/hakkimizda_elite_estates") {
+    sendRedirect(res, "/hakkimizda", {}, 301);
+    return;
+  }
+
+  if (url.pathname === "/i_leti_im_ve_randevu_elite_estates") {
+    sendRedirect(res, "/iletisim", {}, 301);
+    return;
+  }
+
+  if (url.pathname === "/evimi_sat_kirala_cretsiz_de_erleme") {
+    sendRedirect(res, "/degerleme", {}, 301);
+    return;
+  }
+
+  if (url.pathname === "/hakkimizda") {
+    url.pathname = "/hakkimizda_elite_estates/code.html";
+  }
+
+  if (url.pathname === "/iletisim") {
+    url.pathname = "/i_leti_im_ve_randevu_elite_estates/code.html";
+  }
+
+  if (url.pathname === "/degerleme") {
+    url.pathname = "/evimi_sat_kirala_cretsiz_de_erleme/code.html";
   }
 
   if (url.pathname === "/kentsel-donusum" || url.pathname === "/kentsel_donusum") {
@@ -1246,7 +1279,9 @@ async function serveStatic(req, res, url) {
       res.end("Not found");
       return;
     }
-    const body = await fs.readFile(resolved);
+    const body = ext === ".html"
+      ? (await fs.readFile(resolved, "utf8")).replaceAll(templateSourceOrigin, siteOrigin(req))
+      : await fs.readFile(resolved);
     res.writeHead(200, {
       "content-type": contentTypes[ext] || "application/octet-stream",
       "cache-control": ext === ".html" ? "no-store" : "public, max-age=31536000, immutable",
