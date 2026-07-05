@@ -51,10 +51,25 @@ const privateStaticRoots = new Set([".git", ".vercel", "data", "node_modules", "
 // (unrelated, different) domain. Static HTML is rewritten at serve time so canonical/
 // og tags always point at the domain the site is actually being served from.
 const templateSourceOrigin = "https://www.evimizsahane.com";
+const pageFileRoutes = {
+  "/evimiz-sahane": "/pages/home/code.html",
+  "/hakkimizda": "/pages/about/code.html",
+  "/iletisim": "/pages/contact/code.html",
+  "/degerleme": "/pages/valuation/code.html",
+  "/kentsel-donusum": "/pages/urban-transformation/code.html",
+  "/kentsel_donusum": "/pages/urban-transformation/code.html"
+};
+const legacyPageRedirects = {
+  "/portf_y_ve_i_lanlar_elite_estates": "/projelerimiz",
+  "/i_lan_detay_elite_estates": "/projelerimiz",
+  "/hakkimizda_elite_estates": "/hakkimizda",
+  "/i_leti_im_ve_randevu_elite_estates": "/iletisim",
+  "/evimi_sat_kirala_cretsiz_de_erleme": "/degerleme"
+};
 
 function traceVercelRuntimeFiles() {
   return [
-    fsSync.readFileSync(path.join(rootDir, "ana_sayfa_elite_estates", "code.html")),
+    fsSync.readFileSync(path.join(rootDir, "pages", "home", "code.html")),
     fsSync.readFileSync(path.join(rootDir, "assets", "backend-client.js")),
     fsSync.readFileSync(path.join(rootDir, "assets", "evimiz-logo.png")),
     fsSync.readFileSync(path.join(rootDir, "assets", "evimiz-redesign.css")),
@@ -62,11 +77,10 @@ function traceVercelRuntimeFiles() {
     fsSync.readFileSync(path.join(rootDir, "assets", "evimiz-tailwind.css")),
     fsSync.readFileSync(path.join(rootDir, "data", "brand.json")),
     fsSync.readFileSync(path.join(rootDir, "data", "properties.json")),
-    fsSync.readFileSync(path.join(rootDir, "evimi_sat_kirala_cretsiz_de_erleme", "code.html")),
-    fsSync.readFileSync(path.join(rootDir, "hakkimizda_elite_estates", "code.html")),
-    fsSync.readFileSync(path.join(rootDir, "i_leti_im_ve_randevu_elite_estates", "code.html")),
-    fsSync.readFileSync(path.join(rootDir, "kentsel_donusum", "code.html")),
-    fsSync.readFileSync(path.join(rootDir, "portf_y_ve_i_lanlar_elite_estates", "code.html"))
+    fsSync.readFileSync(path.join(rootDir, "pages", "valuation", "code.html")),
+    fsSync.readFileSync(path.join(rootDir, "pages", "about", "code.html")),
+    fsSync.readFileSync(path.join(rootDir, "pages", "contact", "code.html")),
+    fsSync.readFileSync(path.join(rootDir, "pages", "urban-transformation", "code.html"))
   ];
 }
 
@@ -1098,8 +1112,8 @@ async function renderProjectsPortfolio(req, res) {
     const images = project.images.slice(0, 3);
     return `<article class="portfolio-case">
 <div class="portfolio-case__media">
-<img src="${escapeHtml(project.coverImage)}" alt="${escapeHtml(project.title)}">
-${images.length > 1 ? `<div class="portfolio-case__thumbs">${images.slice(1).map((image) => `<img src="${escapeHtml(image.url)}" alt="${escapeHtml(image.alt || project.title)}">`).join("")}</div>` : ""}
+<img src="${escapeHtml(project.coverImage)}" alt="${escapeHtml(project.title)}" loading="lazy" decoding="async">
+${images.length > 1 ? `<div class="portfolio-case__thumbs">${images.slice(1).map((image) => `<img src="${escapeHtml(image.url)}" alt="${escapeHtml(image.alt || project.title)}" loading="lazy" decoding="async">`).join("")}</div>` : ""}
 </div>
 <div class="portfolio-case__body">
 <span class="portfolio-index">${String(index + 1).padStart(2, "0")}</span>
@@ -1212,49 +1226,13 @@ async function serveStatic(req, res, url) {
     return;
   }
 
-  if (url.pathname === "/evimiz-sahane") {
-    url.pathname = "/ana_sayfa_elite_estates/code.html";
-  }
-
-  if (url.pathname === "/portf_y_ve_i_lanlar_elite_estates") {
-    sendRedirect(res, "/projelerimiz", {}, 301);
+  if (url.pathname in legacyPageRedirects) {
+    sendRedirect(res, legacyPageRedirects[url.pathname], {}, 301);
     return;
   }
 
-  if (url.pathname === "/i_lan_detay_elite_estates") {
-    sendRedirect(res, "/projelerimiz", {}, 301);
-    return;
-  }
-
-  if (url.pathname === "/hakkimizda_elite_estates") {
-    sendRedirect(res, "/hakkimizda", {}, 301);
-    return;
-  }
-
-  if (url.pathname === "/i_leti_im_ve_randevu_elite_estates") {
-    sendRedirect(res, "/iletisim", {}, 301);
-    return;
-  }
-
-  if (url.pathname === "/evimi_sat_kirala_cretsiz_de_erleme") {
-    sendRedirect(res, "/degerleme", {}, 301);
-    return;
-  }
-
-  if (url.pathname === "/hakkimizda") {
-    url.pathname = "/hakkimizda_elite_estates/code.html";
-  }
-
-  if (url.pathname === "/iletisim") {
-    url.pathname = "/i_leti_im_ve_randevu_elite_estates/code.html";
-  }
-
-  if (url.pathname === "/degerleme") {
-    url.pathname = "/evimi_sat_kirala_cretsiz_de_erleme/code.html";
-  }
-
-  if (url.pathname === "/kentsel-donusum" || url.pathname === "/kentsel_donusum") {
-    url.pathname = "/kentsel_donusum/code.html";
+  if (url.pathname in pageFileRoutes) {
+    url.pathname = pageFileRoutes[url.pathname];
   }
 
   if (isPrivateStaticPath(url.pathname)) {
