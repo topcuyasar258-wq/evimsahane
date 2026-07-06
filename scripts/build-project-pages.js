@@ -81,8 +81,8 @@ function head(project) {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@200..700,0..1&display=block" rel="stylesheet"/>
-  <link rel="stylesheet" href="/assets/evimiz-tailwind.css?v=20260704-4"/>
-  <link rel="stylesheet" href="/assets/evimiz-redesign.css?v=20260704-4"/>
+  <link rel="stylesheet" href="/assets/evimiz-tailwind.css?v=20260706-ui1"/>
+  <link rel="stylesheet" href="/assets/evimiz-redesign.css?v=20260706-ui1"/>
   <script type="application/ld+json">${JSON.stringify(schema).replace(/</g, "\\u003c")}</script>
 </head>`;
 }
@@ -224,8 +224,8 @@ function lightboxScript() {
     <button class="icon-button material-symbols-outlined" type="button" data-lightbox-close aria-label="Galeriyi kapat">close</button>
     <img data-lightbox-image alt=""/>
   </dialog>
-  <script src="/assets/backend-client.js?v=20260704-4" defer></script>
-  <script src="/assets/evimiz-redesign.js?v=20260704-4" defer></script>
+  <script src="/assets/backend-client.js?v=20260706-ui1" defer></script>
+  <script src="/assets/evimiz-redesign.js?v=20260706-ui1" defer></script>
   <script>
     (() => {
       const dialog = document.querySelector("[data-lightbox]");

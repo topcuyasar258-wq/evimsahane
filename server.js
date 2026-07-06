@@ -818,10 +818,10 @@ function baseHead(title, description = "Evimiz Şahane güncel emlak ilanları",
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@200..700,0..1&display=block" rel="stylesheet">
-<link rel="stylesheet" href="/assets/evimiz-tailwind.css?v=20260704-4">
-<link rel="stylesheet" href="/assets/evimiz-redesign.css?v=20260704-4">
-<script src="/assets/backend-client.js?v=20260704-4" defer></script>
-<script src="/assets/evimiz-redesign.js?v=20260704-4" defer></script>
+<link rel="stylesheet" href="/assets/evimiz-tailwind.css?v=20260706-ui1">
+<link rel="stylesheet" href="/assets/evimiz-redesign.css?v=20260706-ui1">
+<script src="/assets/backend-client.js?v=20260706-ui1" defer></script>
+<script src="/assets/evimiz-redesign.js?v=20260706-ui1" defer></script>
 <style>
 body{font-family:"Instrument Sans",Inter,sans-serif;background:#fff;color:#151515}
 .material-symbols-outlined{display:inline-block;width:1em;overflow:hidden;font-family:"Material Symbols Outlined";font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;line-height:1;text-transform:none;white-space:nowrap}

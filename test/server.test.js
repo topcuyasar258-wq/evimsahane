@@ -37,8 +37,8 @@ test("renders public pages without runtime Tailwind CDN render blockers", async 
     assert.equal(response.statusCode, 200);
     assert.doesNotMatch(response.body, /cdn\.tailwindcss\.com/);
     assert.doesNotMatch(response.body, /<script id="tailwind-config"/);
-    assert.match(response.body, /\/assets\/evimiz-tailwind\.css\?v=20260704-4/);
-    assert.match(response.body, /\/assets\/evimiz-redesign\.css\?v=20260704-4/);
+    assert.match(response.body, /\/assets\/evimiz-tailwind\.css\?v=20260706-ui1/);
+    assert.match(response.body, /\/assets\/evimiz-redesign\.css\?v=20260706-ui1/);
   }
 });
 
