@@ -1,5 +1,6 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
+const path = require("node:path");
 const test = require("node:test");
 
 const {
@@ -244,9 +245,18 @@ test("renders legal trust pages from footer links", async () => {
 });
 
 test("serves uploaded listing images without exposing private runtime data", async () => {
-  const response = await dispatch("GET", "/uploads/properties/d08a2368-0ef1-4d8f-a100-8dc2ecd444c1/1782956121285-1-8a6c18aa-1abe-47d9-b31b-a3f910aa073e.png");
-  assert.equal(response.statusCode, 200);
-  assert.equal(response.headers["content-type"], "image/png");
+  const propertyDir = path.join("uploads", "properties", "d08a2368-0ef1-4d8f-a100-8dc2ecd444c1");
+  const imagePath = path.join(propertyDir, "1782956121285-1-8a6c18aa-1abe-47d9-b31b-a3f910aa073e.png");
+  fs.mkdirSync(propertyDir, { recursive: true });
+  fs.writeFileSync(imagePath, Buffer.from([0x89, 0x50, 0x4e, 0x47]));
+
+  try {
+    const response = await dispatch("GET", `/${imagePath.split(path.sep).join("/")}`);
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.headers["content-type"], "image/png");
+  } finally {
+    fs.rmSync(path.join("uploads", "properties", "d08a2368-0ef1-4d8f-a100-8dc2ecd444c1"), { recursive: true, force: true });
+  }
 });
 
 test("accepts contact leads with phone when email is omitted", async () => {
